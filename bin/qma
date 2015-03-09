@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+require 'commander/import'
+
 $:.push File.expand_path("../../lib", __FILE__)
 require 'qma'
 
@@ -7,7 +10,7 @@ require 'qma'
 program :version, QMA::VERSION
 program :description, '穷游移动应用命令行工具'
 
-program :help, 'Author', "#{QMA::AUTHOR} <#{QMA::EMAIL}>"
+program :help, 'Author', QMA::AUTHORS
 program :help, 'Website', QMA::WEBSITE
 program :help_formatter, :compact
 
