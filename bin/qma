@@ -1,4 +1,18 @@
 #!/usr/bin/env ruby
 
 $:.push File.expand_path("../../lib", __FILE__)
-require 'qyer-mobile-app'
+require 'qma'
+
+
+program :version, QMA::VERSION
+program :description, '穷游移动应用命令行工具'
+
+program :help, 'Author', "#{QMA::AUTHOR} <#{QMA::EMAIL}>"
+program :help, 'Website', QMA::WEBSITE
+program :help_formatter, :compact
+
+global_option('--verbose') { $verbose = true }
+
+default_command :help
+
+require 'qma/commands'

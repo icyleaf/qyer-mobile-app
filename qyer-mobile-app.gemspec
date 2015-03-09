@@ -1,16 +1,16 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'qyer/mobile/app/version'
+require 'qma/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "qyer-mobile-app"
   spec.version       = QMA::VERSION
-  spec.authors       = ["icyleaf"]
-  spec.email         = ["icyleaf.cn@gmail.com"]
+  spec.authors       = [QMA::AUTHOR]
+  spec.email         = [QMA::EMAIL]
   spec.summary       = %q{穷游移动应用命令行工具}
   spec.description   = %q{穷游移动应用命令行工具：App 打包，上传等}
-  spec.homepage      = "http://qyer.com"
+  spec.homepage      = QMA::WEBSITE
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "awesome_print", "~> 1.6.1"
 
   spec.add_dependency 'lagunitas', '0.0.1'
   spec.add_dependency 'user_config', '0.0.4'
