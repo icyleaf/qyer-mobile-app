@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["icyleaf.cn@gmail.com"]
   spec.summary       = %q{穷游移动应用命令行工具}
   spec.description   = %q{穷游移动应用命令行工具：App 打包，上传等}
-  spec.homepage      = ""
+  spec.homepage      = "http://qyer.com"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
