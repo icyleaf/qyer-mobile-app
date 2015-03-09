@@ -5,7 +5,7 @@ require 'qyer/mobile/app/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "qyer-mobile-app"
-  spec.version       = Qyer::Mobile::App::VERSION
+  spec.version       = QMA::VERSION
   spec.authors       = ["icyleaf"]
   spec.email         = ["icyleaf.cn@gmail.com"]
   spec.summary       = %q{穷游移动应用命令行工具}
