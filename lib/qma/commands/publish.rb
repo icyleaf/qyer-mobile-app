@@ -2,6 +2,7 @@ require 'uri'
 require 'rest-client'
 require 'multi_json'
 require 'lagunitas'
+require "securerandom"
 require 'ruby_apk'
 require 'app_config'
 
