@@ -5,8 +5,6 @@ require 'lagunitas'
 require 'ruby_apk'
 require 'app_config'
 
-require 'awesome_print'
-
 
 command :publish do |c|
   @allowed_app = %w[ipa apk].freeze
@@ -121,14 +119,14 @@ command :publish do |c|
         say_error '配置文件不存在 (默认: ~/.qma)' and abort
       end
 
-      begin
-        AppConfig.setup!(yaml: @configuration_file, env: ENV['QYER_ENV'])
+      AppConfig.setup!(yaml: @configuration_file, env: ENV['QYER_ENV'])
 
-        if AppConfig.host.to_s.empty?
-          say_error '请在配置文件配置 host 的域名: ' + @configuration_file and abort
-        end
-      rescue Exception => e
-        say_error '配置文件解析错误，请检查格式' and abort
+      if AppConfig.host.to_s.empty?
+        say_error "host 为空，请在配置文件更新: #{@configuration_file}" and abort
+      end
+
+      unless AppConfig.host =~ /\A#{URI::regexp}\z/
+        say_error "host 不是有效域名格式，请在配置文件更新: #{@configuration_file}" and abort
       end
     end
 
