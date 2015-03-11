@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'commander/import'
 
+ENV['QYER_ENV'] ||= 'production'
 $:.push File.expand_path("../../lib", __FILE__)
 require 'qma'
 
