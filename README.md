@@ -1,31 +1,36 @@
-# Qyer::Mobile::App
+qyer-mobile-app
+===============
 
-TODO: Write a gem description
+穷游移动应用命令行工具
 
-## Installation
+安装
+----
 
-Add this line to your application's Gemfile:
+打开终端执行如下命令
 
-```ruby
-gem 'qyer-mobile-app'
+```bash
+$ gem install qyer-mobile-app
 ```
 
-And then execute:
+用法
+----
 
-    $ bundle
+```bash
+$ qma --help
+```
 
-Or install it yourself as:
+配置文件
+--------
 
-    $ gem install qyer-mobile-app
+由于该工具仅限公司内部使用，涉及服务器配置的信息必须从配置文件读取。
 
-## Usage
+其余的自己看帮助吧！不再解释！
 
-TODO: Write usage instructions here
+共享代码
+--------
 
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/qyer-mobile-app/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+1.	Fork it ( https://github.com/[my-github-username]/qyer-mobile-app/fork )
+2.	Create your feature branch (`git checkout -b my-new-feature`\)
+3.	Commit your changes (`git commit -am 'Add some feature'`\)
+4.	Push to the branch (`git push origin my-new-feature`\)
+5.	Create a new Pull Request
