@@ -21,6 +21,7 @@ command :publish do |c|
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
 
   c.action do |args, options|
+
     @file = args.first || options.file
     @user_key = options.key
     @changelog = options.changelog
@@ -97,7 +98,7 @@ command :publish do |c|
       publish_app({
         identifier: @app.identifier,
         name: @app.display_name,
-        release_version: @app.version,
+        release_version: @app.short_version,
         build_version: @app.version,
         device_type: 'iPhone',
       })
