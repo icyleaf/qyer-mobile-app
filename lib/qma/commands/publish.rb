@@ -58,7 +58,7 @@ command :publish do |c|
 
       begin
         say "上传应用中"
-        res = RestClient.post(url, params) do |response, request, result, &block|
+        res = RestClient.post(url, params, content_type: 'application/json' ) do |response, request, result, &block|
           case response.code
           when 200..444
             response
