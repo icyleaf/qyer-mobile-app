@@ -65,6 +65,9 @@ command :publish do |c|
 
       begin
         say "上传应用中"
+        say_warning "API: #{url}" if $verbose
+        say_warning "params: #{params.to_s}" if $verbose
+
         res = RestClient.post(url, params) do |response, request, result, &block|
           case response.code
           when 200..444
@@ -79,19 +82,19 @@ command :publish do |c|
           data = MultiJson.load res
 
           say "上传成功"
-          say_ok URI.join(AppConfig.host, '/apps/', data['slug']).to_s
+          say URI.join(AppConfig.host, '/apps/', data['slug']).to_s
         when 400..428
           data = MultiJson.load res
 
-          say_error "[#{res.code}] #{data['error']}"
+          say "[#{res.code}] #{data['error']}"
           if data['reason'].count > 0
             data['reason'].each do |key, message|
-              say_error " * #{key} #{message}"
+              say " * #{key} #{message}"
             end
           end
         end
       rescue Exception => e
-        say_error "[ERROR] " + e.to_s
+        say "[ERROR] " + e.to_s
       end
     end
 
