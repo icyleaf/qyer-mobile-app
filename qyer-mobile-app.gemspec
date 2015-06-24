@@ -21,12 +21,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.2.0"
-  spec.add_development_dependency "awesome_print", "~> 1.6.1"
-
 
   spec.add_dependency 'rest-client', '~> 1.7'
   spec.add_dependency 'multi_json', '~> 1.11.0'
   spec.add_dependency 'app_config', '~> 2.5.3'
+  spec.add_dependency 'awesome_print', '~> 1.6.1'
 
   spec.add_dependency 'lagunitas', '0.0.1'
   spec.add_dependency 'pngdefry', '0.1.1'
