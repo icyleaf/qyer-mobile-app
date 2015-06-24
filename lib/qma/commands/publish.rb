@@ -1,10 +1,10 @@
 require 'uri'
 require 'rest-client'
 require 'multi_json'
-require 'lagunitas'
-require "securerandom"
-require 'ruby_apk'
 require 'app_config'
+require 'securerandom'
+require 'lagunitas'
+require 'ruby_apk'
 
 
 command :publish do |c|
@@ -15,19 +15,26 @@ command :publish do |c|
   c.description = '发布 iOS 或 Android 应用至穷游分发内测系统 (仅限 ipa/apk 文件)'
 
   c.option '-f', '--file FILE', '上传的 Android 或 iPhone 应用（仅限 apk 或 ipa 文件）'
+  c.option '-n', '--name NAME', '设置应用名'
   c.option '-k', '--key KEY', '用户唯一的标识'
   c.option '-s', '--slug SLUG', '设置或更新应用的地址标识'
   c.option '-c', '--changelog CHANGLOG', '应用更新日志'
+  c.option '--env ENV', '设置环境 (默认 development)'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
 
   c.action do |args, options|
 
     @file = args.first || options.file
+    @name = options.name
     @user_key = options.key
     @changelog = options.changelog
 
+    @env = options.env || ENV['QYER_ENV'] || 'development'
+    @env = @env.downcase.to_sym if @env
+
     @configuration_file = options.config || File.join(File.expand_path('~'), '.qma')
 
+    determine_qyer_env!
     determine_configuration_file!
     determine_file!
     determine_user_key!
@@ -76,8 +83,12 @@ command :publish do |c|
         when 400..428
           data = MultiJson.load res
 
-          say_error "上传失败"
           say_error "[#{res.code}] #{data['error']}"
+          if data['reason'].count > 0
+            data['reason'].each do |key, message|
+              say_error " * #{key} #{message}"
+            end
+          end
         end
       rescue Exception => e
         say_error "[ERROR] " + e.response
@@ -95,9 +106,11 @@ command :publish do |c|
     end
 
     def publish_ipa!
+      @name ||= @app.display_name || @app.info['CFBundleName']
+
       publish_app({
         identifier: @app.identifier,
-        name: @app.display_name,
+        name: @name,
         release_version: @app.short_version,
         build_version: @app.version,
         device_type: 'iPhone',
@@ -105,9 +118,10 @@ command :publish do |c|
     end
 
     def publish_apk!
+      @name ||= @app.label
       publish_app({
         identifier: @app.manifest.package_name,
-        name: @app.label,
+        name: @name,
         release_version: @app.manifest.version_name,
         build_version: @app.manifest.version_code,
         device_type: 'Android',
@@ -121,7 +135,7 @@ command :publish do |c|
         say_error '配置文件不存在 (默认: ~/.qma)' and abort
       end
 
-      AppConfig.setup!(yaml: @configuration_file, env: ENV['QYER_ENV'])
+      AppConfig.setup!(yaml: @configuration_file, env: @env)
 
       if AppConfig.host.to_s.empty?
         say_error "host 为空，请在配置文件更新: #{@configuration_file}" and abort
@@ -149,5 +163,14 @@ command :publish do |c|
 
     def determine_user_key!
       @user_key ||= ask "User Token:"
+    end
+
+    def determine_qyer_env!
+      say_warning "使用环境: #{@env}" if $verbose
+
+      envs = [:development, :test, :production]
+      unless envs.include?@env
+        say_error "无效环境，仅限如下：#{envs.join(', ')}" and abort
+      end
     end
 end
