@@ -65,7 +65,7 @@ command :publish do |c|
 
       begin
         say "上传应用中"
-        res = RestClient.post(url, params, content_type: 'application/json' ) do |response, request, result, &block|
+        res = RestClient.post(url, params) do |response, request, result, &block|
           case response.code
           when 200..444
             response
@@ -91,7 +91,7 @@ command :publish do |c|
           end
         end
       rescue Exception => e
-        say_error "[ERROR] " + e.response
+        say_error "[ERROR] " + e.to_s
       end
     end
 
