@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email                 = QMA::AUTHORS.values
   spec.summary               = %q{穷游移动应用命令行工具}
   spec.description           = %q{穷游移动应用命令行工具：App 打包，上传等}
-  spec.homepage              = QMA::WEBSITE
+  spec.homepage              = "http://github.com/icyleaf/qyer-mobile-app"
   spec.license               = "MIT"
 
   spec.files                 = `git ls-files -z`.split("\x0")
