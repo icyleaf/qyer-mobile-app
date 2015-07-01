@@ -1,6 +1,6 @@
 module QMA
 
-  VERSION = "0.1.1"
+  VERSION = "0.1.2"
 
   AUTHORS = {
     "icyleaf" => "icyleaf.cn@gmail.com",
