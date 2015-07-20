@@ -3,7 +3,6 @@ require 'rest-client'
 require 'multi_json'
 require 'app_config'
 require 'securerandom'
-require 'lagunitas'
 require 'ruby_apk'
 
 
@@ -77,15 +76,15 @@ command :publish do |c|
           end
         end
 
+        data = MultiJson.load res
         case res.code
+        when 201
+          say "新版本上传成功"
+          say URI.join(AppConfig.host, '/apps/', data['app']['slug']).to_s
         when 200
-          data = MultiJson.load res
-
-          say "上传成功"
-          say URI.join(AppConfig.host, '/apps/', data['slug']).to_s
+          say "该版本之前已上传"
+          say URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['id'].to_s).to_s
         when 400..428
-          data = MultiJson.load res
-
           say "[#{res.code}] #{data['error']}"
           if data['reason'].count > 0
             data['reason'].each do |key, message|
@@ -102,20 +101,31 @@ command :publish do |c|
       say "解析 #{@file_extname} 应用的内部参数..."
       @app = case @file_extname
       when 'ipa'
-        Lagunitas::IPA.new(@file).app
+        Qyer::IPA.new(@file)
       when 'apk'
         Android::Apk.new(@file)
       end
     end
 
     def publish_ipa!
-      @name ||= @app.display_name || @app.info['CFBundleName']
+      app = @app.app
+
+      release_type = if @app.release_type == 'adhoc'
+        app.release_type
+      else
+        @app.release_type
+      end
+
+      @name ||= app.display_name || app.name
 
       publish_app({
-        identifier: @app.identifier,
         name: @name,
-        release_version: @app.short_version,
-        build_version: @app.version,
+        release_type: release_type,
+        identifier: app.identifier,
+        release_version: app.short_version,
+        build_version: app.version,
+        profile_name: app.profile_name,
+        team_name: app.team_name,
         device_type: 'iPhone',
       })
     end
