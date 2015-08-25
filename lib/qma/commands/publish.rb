@@ -18,6 +18,12 @@ command :publish do |c|
   c.option '-k', '--key KEY', '用户唯一的标识'
   c.option '-s', '--slug SLUG', '设置或更新应用的地址标识'
   c.option '-c', '--changelog CHANGLOG', '应用更新日志'
+
+  c.option '--channel CHANNEL', '上传渠道（默认：API)'
+  c.option '--branch BRANCH', 'Git 分支名'
+  c.option '--commit COMMIT', 'Git 提交识别码'
+  c.option '--ci-url CI_URL', '集成 CI 的构建地址'
+
   c.option '--env ENV', '设置环境 (默认 development)'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
 
@@ -27,6 +33,11 @@ command :publish do |c|
     @name = options.name
     @user_key = options.key
     @changelog = options.changelog
+
+    @channel = options.channel || 'API'
+    @branch = options.branch
+    @commit = options.commit
+    @ci_url = options.ci_url
 
     @env = options.env || ENV['QYER_ENV'] || 'development'
     @env = @env.downcase.to_sym if @env
@@ -127,6 +138,10 @@ command :publish do |c|
         profile_name: app.profile_name,
         team_name: app.team_name,
         device_type: 'iPhone',
+        channel: @channel,
+        branch: @branch,
+        last_commit: @commit,
+        ci_url: @ci_url,
       })
     end
 
@@ -138,6 +153,10 @@ command :publish do |c|
         release_version: @app.manifest.version_name,
         build_version: @app.manifest.version_code,
         device_type: 'Android',
+        channel: @channel,
+        branch: @branch,
+        last_commit: @commit,
+        ci_url: @ci_url,
       })
     end
 
