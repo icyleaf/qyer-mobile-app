@@ -94,7 +94,7 @@ command :publish do |c|
           say URI.join(AppConfig.host, '/apps/', data['app']['slug']).to_s
         when 200
           say "该版本之前已上传"
-          say URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['id'].to_s).to_s
+          say URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['version'].to_s).to_s
         when 400..428
           say "[#{res.code}] #{data['error']}"
           if data['reason'].count > 0
