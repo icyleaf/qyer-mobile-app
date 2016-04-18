@@ -2,7 +2,7 @@ require 'lagunitas'
 require 'date'
 
 
-module Qyer
+module QMA
   class IPA < Lagunitas::IPA
     def app
       @app ||= App.new(app_path)

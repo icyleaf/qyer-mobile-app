@@ -1,6 +1,6 @@
 require 'uri'
+require 'json'
 require 'rest-client'
-require 'multi_json'
 require 'app_config'
 require 'securerandom'
 require 'ruby_apk'
@@ -87,14 +87,16 @@ command :publish do |c|
           end
         end
 
-        data = MultiJson.load res
+        data = JSON.parse res
         case res.code
         when 201
+          url = URI.join(AppConfig.host, '/apps/', data['app']['slug']).to_s
           say "新版本上传成功"
-          say URI.join(AppConfig.host, '/apps/', data['app']['slug']).to_s
+          say url
         when 200
+          url = URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['version'].to_s).to_s
           say "该版本之前已上传"
-          say URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['version'].to_s).to_s
+          say url
         when 400..428
           say "[#{res.code}] #{data['error']}"
           if data['reason'].count > 0
@@ -112,7 +114,7 @@ command :publish do |c|
       say "解析 #{@file_extname} 应用的内部参数..."
       @app = case @file_extname
       when 'ipa'
-        Qyer::IPA.new(@file)
+        QMA::IPA.new(@file)
       when 'apk'
         Android::Apk.new(@file)
       end
@@ -183,7 +185,7 @@ command :publish do |c|
         say_error "请填写应用路径(仅限 ipa/apk 文件):" and abort
       end
 
-      if File.exists?(@file)
+      if File.exist?(@file)
         @file_extname = File.extname(@file).delete('.')
         unless @allowed_app.include?(@file_extname)
           say_error "应用仅接受 ipa/apk 文件" and abort
