@@ -1,4 +1,6 @@
 require 'ruby_apk'
+require 'image_size'
+
 
 module QMA
   module Parser
@@ -31,15 +33,27 @@ module QMA
       end
 
       def icons
-        @icons ||= @apk.icon.each_with_object([]) do |(name, data), obj|
-          tempfile = Tempfile.new(File.basename(name))
-          tempfile.binmode
-          tempfile.write(data)
-          tempfile.close
-          size = ImageSize.path(tempfile.path).size
-          obj << { dimensions: size, file_name: name }
-          tempfile.unlink
+        unless @icons
+          tmp_path = File.join(Dir.mktmpdir, "qma-android-#{SecureRandom.hex}")
+
+          @icons = @apk.icon.each_with_object([]) do |(path, data), obj|
+            icon_name = File.basename(path)
+            icon_path = File.join(tmp_path, File.path(path))
+            icon_file = File.join(icon_path, icon_name)
+            FileUtils.mkdir_p icon_path
+            File.open(icon_file, 'w') do |f|
+              f.write data
+            end
+
+            obj << {
+              name: icon_name,
+              file: icon_file,
+              dimensions: ImageSize.path(icon_file).size
+            }
+          end
         end
+
+        @icons
       end
 
       alias_method :identifier, :bundle_id

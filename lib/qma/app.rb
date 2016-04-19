@@ -1,7 +1,5 @@
 module QMA
   class App
-    class NotFoundError < StandardError; end
-    class NotAppError < StandardError; end
 
     def self.parse(file)
       raise NotFoundError, file unless File.exist?(file)

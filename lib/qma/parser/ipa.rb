@@ -1,6 +1,7 @@
 require "cfpropertylist"
+require "pngdefry"
 require 'qma/core_ext/object/try'
-
+require 'fileutils'
 
 module QMA
   module Parser
@@ -40,20 +41,19 @@ module QMA
         info["CFBundleName"]
       end
 
-      def app_path
-        @app_path ||= Dir.glob(File.join(contents, 'Payload', '*.app')).first
-      end
-
       def icons
-        @icons ||= begin
-          icons = []
-          info['CFBundleIcons']['CFBundlePrimaryIcon']['CFBundleIconFiles'].each do |name|
-            icons << get_image(name)
-            icons << get_image("#{name}@2x")
+        @icons ||= info.try(:[], 'CFBundleIcons')
+            .try(:[], 'CFBundlePrimaryIcon')
+            .try(:[], 'CFBundleIconFiles')
+            .each_with_object([]) do |icons, obj|
+
+          Dir.glob(File.join(app_path, "#{icons}*")).find_all.each do |file|
+            obj << {
+              name: File.basename(file),
+              file: file,
+              dimensions: Pngdefry.dimensions(file),
+            }
           end
-          icons.delete_if &:!
-        rescue NoMethodError
-          []
         end
       end
 
@@ -89,6 +89,19 @@ module QMA
         "#{mobileprovision['Name']} - #{mobileprovision['TeamName']}" if has_mobileprovision?
       end
 
+      def device_type
+        if info['UIDeviceFamily'].length == 1
+          case info['UIDeviceFamily']
+          when 1
+            'iphone'
+          when 2
+            'ipad'
+          end
+        elsif info['UIDeviceFamily'].length == 2 && info['UIDeviceFamily'] == [1, 2]
+          'universal'
+        end
+      end
+
       def release_type
         if is_stored
           'store'
@@ -99,6 +112,8 @@ module QMA
             else
               'inhouse'
             end
+          else
+            'debug'
           end
         end
       end
@@ -124,26 +139,31 @@ module QMA
         @info ||= CFPropertyList.native_types(CFPropertyList::List.new(file: File.join(app_path, 'Info.plist')).value)
       end
 
-      def cleanup
+      def app_path
+        @app_path ||= Dir.glob(File.join(contents, 'Payload', '*.app')).first
+      end
+
+      def cleanup!
         return unless @contents
         FileUtils.rm_rf(@contents)
+
         @contents = nil
+        @icons = nil
+        @app_path = nil
+        @metadata = nil
+        @metadata_path = nil
+        @info = nil
       end
 
       alias_method :bundle_id, :identifier
 
-      # private
-        def get_image(name)
-          path = File.join(@file, "#{name}.png")
-          return nil unless File.exist?(path)
-          path
-        end
+      private
 
         def contents
           # 借鉴 lagunitas 解析 ipa 的代码
           # source: https://github.com/soffes/lagunitas/blob/master/lib/lagunitas/ipa.rb
           unless @contents
-            @contents = "#{Dir.mktmpdir}/ios-#{SecureRandom.hex}"
+            @contents = "#{Dir.mktmpdir}/qma-ios-#{SecureRandom.hex}"
             Zip::File.open(@file) do |zip_file|
               zip_file.each do |f|
                 f_path = File.join(@contents, f.name)
@@ -154,22 +174,6 @@ module QMA
           end
 
           @contents
-        end
-
-        def app_icons
-          Dir.mktmpdir do |dir|
-            ap info.class
-            info.try(:[], 'CFBundleIcons')
-                .try(:[], 'CFBundlePrimaryIcon')
-                .try(:[], 'CFBundleIconFiles')
-                .each_with_object([]) do |icons, obj|
-
-              Dir.glob(File.join(@contents, "#{icons}*")).find_all.each do |entry|
-                ap entry
-              end
-
-            end
-          end
         end
 
     end #/IPA

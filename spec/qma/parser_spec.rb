@@ -15,21 +15,21 @@ describe QMA::App do
     expect(file.class).to eq QMA::Parser::IPA
   end
 
-  it "should throw an exception when file is not exist" do
+  it "should throwa an exception when file is not exist" do
     file = "path/to/your/file"
     expect do
       QMA::App.parse(file)
-    end.to raise_error(QMA::App::NotFoundError)
+    end.to raise_error(QMA::NotFoundError)
   end
 
   ['txt', 'pdf', 'app', 'zip', 'rar'].each do |ext|
-    it "should throw an exception when file is '.#{ext}'" do
+    it "should throwa an exception when file is '.#{ext}'" do
       filename = "#{SecureRandom.uuid}.#{ext}"
       file = Tempfile.new(filename)
 
       expect do
         QMA::App.parse(file.path)
-      end.to raise_error(QMA::App::NotAppError)
+      end.to raise_error(QMA::NotAppError)
     end
   end
 end

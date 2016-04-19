@@ -23,13 +23,12 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
   spec.add_development_dependency 'awesome_print'
 
+  spec.add_dependency 'commander', '~> 4.4.0'
   spec.add_dependency 'rest-client', '~> 1.7'
-  spec.add_dependency 'multi_json', '~> 1.11.1'
-  spec.add_dependency 'app_config', '~> 2.5.3'
   spec.add_dependency 'CFPropertyList', '~> 2.3.2'
-
+  spec.add_dependency 'pngdefry', '0.1.2'
+  spec.add_dependency 'ruby_android', '~> 0.7.7'
+  spec.add_dependency 'image_size', '~> 1.4.2'
 
   spec.add_dependency 'lagunitas', '0.0.2'
-  spec.add_dependency 'commander', '~> 4.3.4'
-  spec.add_dependency 'ruby_android', '~> 0.7.7'
 end

@@ -1,0 +1,5 @@
+---
+key: <input-your-key>
+host:
+  external: <input-your-external-host>
+  intranet: <input-your-intranet-host>
