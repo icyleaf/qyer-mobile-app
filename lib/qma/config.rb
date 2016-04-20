@@ -12,6 +12,8 @@ module QMA
       else
         load_default_config
       end
+
+      migratate_old_data if old_data?
     end
 
     def key
@@ -53,12 +55,8 @@ module QMA
     end
 
     def load_default_config
-      source_path = File.expand_path('../../../config', __FILE__)
-      source_file = File.join(source_path, 'qma.yml')
-      path = File.join(File.expand_path('~'), '.qma')
-
-      FileUtils.cp source_file, path
-      load(path)
+      FileUtils.cp template_config_file, default_path
+      load(default_path)
     end
 
     def save
@@ -69,8 +67,44 @@ module QMA
 
     def save!
       save
-      self
     end
+
+    def default_path
+      File.join(File.expand_path('~'), '.qma')
+    end
+
+    private
+
+      def template_config_file
+        source_path = File.expand_path('../../../config', __FILE__)
+        source_file = File.join(source_path, 'qma.yml')
+      end
+
+      def old_data?
+        @data.has_key?('development') || @data.has_key?('production')
+      end
+
+      def migratate_old_data
+        config = Config.new(template_config_file)
+
+        if external_host = @data.try(:[], 'production').try(:[], 'host')
+          config.external_host = external_host
+        else
+          config.external_host = nil
+        end
+
+        if intranet_host = @data.try(:[], 'development').try(:[], 'host')
+          config.intranet_host = intranet_host
+        else
+          config.intranet_host = nil
+        end
+
+        File.open(@path, 'w') do |f|
+          f.write config.data.to_yaml
+        end
+
+        @data = config.data
+      end
 
   end #/Config
 end #/QMA

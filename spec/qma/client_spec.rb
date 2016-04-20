@@ -21,7 +21,7 @@ describe QMA::Client do
     it "should throws an exception when key is not pass" do
       expect do
         QMA::Client.new
-      end.to raise_error ArgumentErrorg
+      end.to raise_error ArgumentError
     end
 
     it "should throws an exception when config file is not exist" do

@@ -1,18 +1,27 @@
 describe QMA::Config do
 
   let(:key) { '1234567890' }
-
-  let(:config_path) { File.expand_path('../../../config', __FILE__) }
-  let(:config_name) { 'qma.yml' }
   let(:tmp_path) { '/tmp/qma' }
-  let(:config) { File.join(tmp_path, config_name) }
+
+
+  let(:template_config_path) { File.expand_path('../../../config', __FILE__) }
+  let(:template_config_name) { 'qma.yml' }
+  let(:template_config) { File.join(tmp_path, template_config_name) }
+
+  let(:fixtures_config_path) { File.expand_path('../../fixtures/config', __FILE__) }
+  let(:fixtures_config_name1) { 'qma.fixtures1.yml' }
+  let(:fixtures_config_name2) { 'qma.fixtures2.yml' }
+  let(:fixtures_config1) { File.join(tmp_path, fixtures_config_name1) }
+  let(:fixtures_config2) { File.join(tmp_path, fixtures_config_name2) }
+
   let(:default_config) { File.join(File.expand_path('~'), '.qma') }
   let(:backup_default_config) { File.join(File.expand_path('~'), '.qma.bak') }
 
   before do
     FileUtils.mkdir_p tmp_path
-    source = File.join(config_path, config_name)
-    FileUtils.cp_r source, tmp_path
+    FileUtils.cp_r File.join(template_config_path, template_config_name), template_config
+    FileUtils.cp_r File.join(fixtures_config_path, fixtures_config_name1), fixtures_config1
+    FileUtils.cp_r File.join(fixtures_config_path, fixtures_config_name2), fixtures_config2
 
     FileUtils.mv default_config, backup_default_config if File.exist?(default_config)
   end
@@ -35,11 +44,25 @@ describe QMA::Config do
 
     it "should update to file when call save method" do
       external_host = 'http://stub.qyer.dev'
+      subject.key = key
       subject.external_host = external_host
       subject.save!
 
       yaml = YAML.load(File.open(subject.path))
       expect(yaml['host']['external']).to eq external_host
+      expect(yaml['key']).to eq key
+    end
+  end
+
+  context "#mergation" do
+    it "should upgraded new structs when initialize" do
+      [fixtures_config1, fixtures_config2].each do |path|
+        old_data = YAML.load(File.open(path))
+        config = QMA::Config.new(path)
+
+        expect(config.intranet_host).to eq old_data.try(:[], 'development').try(:[], 'host')
+        expect(config.external_host).to eq old_data.try(:[], 'production').try(:[], 'host')
+      end
     end
   end
 

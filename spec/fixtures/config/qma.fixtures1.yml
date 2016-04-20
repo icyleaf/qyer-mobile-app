@@ -1,0 +1,5 @@
+---
+development:
+  host: http://qma.qyer.dev
+production:
+  host: http://qma.qyer.com
