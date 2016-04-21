@@ -1,9 +1,10 @@
 require 'ruby_apk'
 require 'image_size'
 
-
 module QMA
   module Parser
+    ##
+    # APK 解析
     class APK
       attr_reader :file, :apk
 
@@ -24,7 +25,7 @@ module QMA
         @apk.manifest.version_name
       end
 
-      def app_name
+      def name
         @apk.resource.find('@string/app_name')
       end
 
@@ -56,8 +57,7 @@ module QMA
         @icons
       end
 
-      alias_method :identifier, :bundle_id
-
-    end #/APK
-  end #/Parser
-end #/QMA
+      alias identifier bundle_id
+    end # /APK
+  end # /Parser
+end # /QMA

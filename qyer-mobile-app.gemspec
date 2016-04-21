@@ -4,24 +4,18 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'qma/version'
 
 Gem::Specification.new do |spec|
-  spec.name                  = 'qyer-mobile-app'
-  spec.version               = QMA::VERSION
-  spec.authors               = QMA::AUTHORS.keys
-  spec.email                 = QMA::AUTHORS.values
-  spec.summary               = %q{穷游移动应用命令行工具}
-  spec.description           = %q{穷游移动应用命令行工具：App 打包，上传等}
-  spec.homepage              = 'http://github.com/icyleaf/qyer-mobile-app'
-  spec.license               = 'MIT'
-
-  spec.files                 = `git ls-files -z`.split("\x0")
-  spec.executables           = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.test_files            = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths         = ['lib']
-
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'awesome_print'
+  spec.name            = 'qyer-mobile-app'
+  spec.version         = QMA::VERSION
+  spec.authors         = QMA::AUTHORS.keys
+  spec.email           = QMA::AUTHORS.values
+  spec.summary         = QMA::SUMMARY
+  spec.description     = QMA::DESCRIPTION
+  spec.homepage        = 'http://github.com/icyleaf/qyer-mobile-app'
+  spec.license         = 'MIT'
+  spec.files           = `git ls-files -z`.split("\x0")
+  spec.executables     = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.test_files      = spec.files.grep(%r{^(test|spec|features)/})
+  spec.require_paths   = ['lib']
 
   spec.add_dependency 'commander', '~> 4.4.0'
   spec.add_dependency 'rest-client', '~> 1.7'
@@ -30,5 +24,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ruby_android', '~> 0.7.7'
   spec.add_dependency 'image_size', '~> 1.4.2'
 
-  spec.add_dependency 'lagunitas', '0.0.2'
+  spec.add_development_dependency 'bundler'
+  spec.add_development_dependency 'rake'
+  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'awesome_print'
 end

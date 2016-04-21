@@ -1,10 +1,9 @@
 module QMA
-
-  VERSION = "0.3.1"
-
+  SUMMARY = '穷游移动应用命令行工具'.freeze
+  DESCRIPTION = '穷游移动应用命令行工具：App 打包，上传等'.freeze
+  VERSION = '0.4.0'.freeze
   AUTHORS = {
-    "icyleaf" => "icyleaf.cn@gmail.com",
-    "三火"     => "shen.wang@qyer.com",
-  }
-  WEBSITE = "http://icyleaf.com"
+    icyleaf: 'icyleaf.cn@gmail.com'
+  }.freeze
+  WEBSITE = 'http://icyleaf.com'.freeze
 end

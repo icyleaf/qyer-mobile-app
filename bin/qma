@@ -7,16 +7,13 @@ ENV['QYER_ENV'] ||= 'production'
 $:.push File.expand_path("../../lib", __FILE__)
 require 'qma'
 
-
 program :version, QMA::VERSION
-program :description, '穷游移动应用命令行工具'
-
+program :description, QMA::DESCRIPTION
 program :help, 'Author', QMA::AUTHORS
 program :help, 'Website', QMA::WEBSITE
 program :help_formatter, :compact
 
 global_option('--verbose') { $verbose = true }
-
 default_command :help
 
 require 'qma/commands'
