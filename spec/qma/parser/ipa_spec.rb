@@ -19,7 +19,7 @@ describe QMA::Parser::IPA do
     it { expect(subject.expired_date).to be_nil }
     it { expect(subject.distribution_name).to be_nil }
     it { expect(subject.mobileprovision).to be_nil }
-    it { expect(subject.mobileprovision?).to be false }
+    it { expect(subject.mobileprovision?).to be true }
     it { expect(subject.metadata).to be_nil }
     it { expect(subject.metadata?).to be false }
     it { expect(subject.stored?).to be false }

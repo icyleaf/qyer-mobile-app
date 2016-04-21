@@ -78,7 +78,7 @@ module QMA
       end
 
       def distribution_name
-        "#{profile_name} - #{team_name}" if mobileprovision?
+        "#{profile_name} - #{team_name}" if profile_name && team_name
       end
 
       def device_type
@@ -135,9 +135,9 @@ module QMA
         return unless mobileprovision?
         return @mobileprovision if @mobileprovision
 
-        cmd = %(security cms -D -i "#{mobileprovision_path}")
         begin
-          @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: `#{cmd}`).value)
+          data = `security cms -D -i "#{mobileprovision_path}"`
+          @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
         rescue CFFormatError
           @mobileprovision = nil
         end
