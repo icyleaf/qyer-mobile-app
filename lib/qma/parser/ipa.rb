@@ -8,11 +8,11 @@ module QMA
     ##
     # 解析 IPA 文件
     class IPA
-      attr_reader :file, :app
+      attr_reader :file, :app_path
 
       def initialize(file)
         @file = file
-        @app = app_path
+        @app_path = app_path
       end
 
       def os
@@ -56,16 +56,16 @@ module QMA
                        end
       end
 
-      def hide_developer_certificates
-        mobileprovision.delete('DeveloperCertificates') if mobileprovision?
-      end
-
       def devices
         mobileprovision.try(:[], 'ProvisionedDevices')
       end
 
       def team_name
         mobileprovision.try(:[], 'TeamName')
+      end
+
+      def team_identifier
+        mobileprovision.try(:[], 'TeamIdentifier')
       end
 
       def profile_name
@@ -76,11 +76,8 @@ module QMA
         mobileprovision.try(:[], 'ExpirationDate')
       end
 
-
-
       def distribution_name
-        name =
-        "#{mobileprovision['Name']} - #{mobileprovision['TeamName']}" if mobileprovision?
+        "#{profile_name} - #{team_name}" if mobileprovision?
       end
 
       def device_type
@@ -117,6 +114,10 @@ module QMA
         end
       end
 
+      def hide_developer_certificates
+        mobileprovision.delete('DeveloperCertificates') if mobileprovision?
+      end
+
       def cleanup!
         return unless @contents
         FileUtils.rm_rf(@contents)
@@ -137,16 +138,22 @@ module QMA
         begin
           @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: `#{cmd}`).value)
         rescue CFFormatError
-          @mobileprovision = {}
+          @mobileprovision = nil
         end
       end
 
       def mobileprovision?
-        File.file?mobileprovision_path
+        File.exist?mobileprovision_path
       end
 
       def mobileprovision_path
-        @mobileprovision_path ||= File.join(@file, 'embedded.mobileprovision')
+        filename = 'embedded.mobileprovision'
+        @mobileprovision_path ||= File.join(@file, filename)
+        unless File.exist?@mobileprovision_path
+          @mobileprovision_path = File.join(app_path, filename)
+        end
+
+        @mobileprovision_path
       end
 
       def metadata
@@ -155,7 +162,7 @@ module QMA
       end
 
       def metadata?
-        File.file?(metadata_path)
+        File.exist?(metadata_path)
       end
 
       def metadata_path
