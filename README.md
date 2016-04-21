@@ -2,9 +2,8 @@
 
 [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/icyleaf/qyer-mobile-app/blob/master/LICENSE)
 [![Gem](https://img.shields.io/gem/v/qyer-mobile-app.svg?style=flat)](http://rubygems.org/gems/qyer-mobile-app)
-[![Build Status](https://travis-ci.org/icyleaf/qyer-mobile-app.svg?branch=master)](https://travis-ci.org/icyleaf/qyer-mobile-app)
-[![Build Status](https://img.shields.io/circleci/project/icyleaf/qyer-mobile-app/master.svg?style=flat)](https://circleci.com/gh/icyleaf/qyer-mobile-app)
-
+[![Build Status](https://travis-ci.org/icyleaf/qyer-mobile-app.svg)](https://travis-ci.org/icyleaf/qyer-mobile-app)
+[![Circle CI](https://circleci.com/gh/icyleaf/qyer-mobile-app/tree/develop.svg?style=svg)](https://circleci.com/gh/icyleaf/qyer-mobile-app/tree/develop)
 
 穷游移动应用命令行工具
 
