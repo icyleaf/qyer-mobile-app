@@ -1,9 +1,7 @@
-require 'terminal-table'
-
 command :info do |c|
   c.syntax = 'qma info [option]'
   c.summary = '查看 app 的数据信息'
-  c.description = '解析 app 的元数据并一一返回'
+  c.description = '解析 app 的元数据（ipa 还会返回更多有用信息'
 
   c.option '-f', '--file FILE', '上传的 Android 或 iPhone 应用（仅限 apk 或 ipa 文件）'
 
@@ -14,6 +12,8 @@ command :info do |c|
     @app = QMA::App.parse(@file)
     dump_data!
   end
+
+  private
 
   def dump_data!
     table = dump_common!
@@ -26,17 +26,9 @@ command :info do |c|
     keys = %w(name release_version build_version identifier os)
     Terminal::Table.new do |t|
       keys.each do |key|
-        value = @app.send(key.to_sym)
         columns = []
         columns << key.capitalize
-        columns << case value
-                   when Hash
-                     value.collect{|k, v| "#{k}: #{v}"}.join("\n")
-                   when Array
-                     value.join("\n")
-                   else
-                     value.to_s
-                   end
+        columns << @app.send(key.to_sym).to_column
 
         t << columns
       end
@@ -49,14 +41,7 @@ command :info do |c|
 
       columns = []
       columns << key
-      columns << case value
-                 when Hash
-                   value.collect{|k, v| "#{k}: #{v}"}.join("\n")
-                 when Array
-                   value.join("\n")
-                 else
-                   value.to_s
-                 end
+      columns << value.to_column
 
       table << columns
     end
@@ -67,12 +52,15 @@ command :info do |c|
   end
 
   def determine_file!
-    say_error "请填写应用路径(仅限 ipa/apk 文件):" && abort if @file.to_s.empty?
-    say_error "输入的文件不存在" && abort unless File.exist?(@file)
-
+    white_exts = %w(ipa apk).freeze
     file_extname = File.extname(@file).delete('.')
-    unless %w(ipa apk).include?(file_extname)
-      say_error "应用仅接受 ipa/apk 文件" && abort
-    end
+
+    abort! '输入的文件不存在' unless File.exist?(@file)
+    abort! '应用仅接受 ipa/apk 文件' unless white_exts.include?(file_extname)
+  end
+
+  def abort!(message)
+    say_error message
+    abort
   end
 end

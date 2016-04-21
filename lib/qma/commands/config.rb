@@ -1,5 +1,3 @@
-require 'terminal-table'
-
 command :config do |c|
   c.syntax = 'qma config [option]'
   c.summary = '配置命令需求的参数'
