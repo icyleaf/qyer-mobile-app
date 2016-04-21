@@ -1,7 +1,8 @@
 require 'cfpropertylist'
 require 'pngdefry'
-require 'qma/core_ext/object/try'
 require 'fileutils'
+require 'securerandom'
+require 'qma/core_ext/object/try'
 
 module QMA
   module Parser
