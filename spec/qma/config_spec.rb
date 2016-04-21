@@ -41,6 +41,10 @@ describe QMA::Config do
     it { expect(subject.hosts.size).to eq 2 }
     it { expect(subject.external_host).to eq '<input-your-external-host>' }
     it { expect(subject.intranet_host).to eq '<input-your-intranet-host>' }
+    it { expect(ENV['QMA_KEY']).to eq subject.key }
+    it { expect(ENV['QMA_EXTERNAL_HOST']).to eq subject.external_host }
+    it { expect(ENV['QMA_INTRANET_HOST']).to eq subject.intranet_host }
+
 
     it "should update to file when call save method" do
       external_host = 'http://stub.qyer.dev'

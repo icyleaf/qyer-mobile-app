@@ -6,6 +6,8 @@ describe QMA::Client do
   let(:tmp_path) { '/tmp/qma' }
   let(:config_file) { File.join(tmp_path, config_name) }
 
+  let(:apk_file) { File.dirname(__FILE__) + '/../fixtures/apps/android.apk' }
+  let(:ipa_file) { File.dirname(__FILE__) + '/../fixtures/apps/iphone.ipa' }
 
   before do
     FileUtils.mkdir_p tmp_path
@@ -32,7 +34,7 @@ describe QMA::Client do
       end.to raise_error QMA::NotFoundError, fake_config_path
     end
 
-    it "should works with the default setting" do
+    it "should works with the default settings" do
       client = QMA::Client.new(key)
 
       expect(client).to be_kind_of QMA::Client
@@ -40,26 +42,22 @@ describe QMA::Client do
     end
   end
 
-  # context "#methods" do
-  #
-  #
-  #   let(:subject) { QMA::Client.new(key, config_file:config_file) }
-  #
-  #   it { expect(subject.host).not_to be_nil }
-  #   it { expect(subject.current_env).to eq :production }
-  #   it { expect(subject.env(:development).current_env).to eq :development }
-  #   it "should update config file when host is update" do
-  #     url = 'stub url'
-  #     env = 'production'
-  #     # subject.update_host(url, env: env)
-  #     ap subject.config
-  #     ap subject.config_file
-  #
-  #     yaml = YAML.load(File.open(config_file))
-  #     ap yaml
-  #
-  #     expect(subject.host).to eq yaml[env.to_sym][:host]
-  #   end
-  # end
+  context "#publish" do
+    let(:subject) { QMA::Client.new(key, config_file: config_file) }
+
+    it "should match intranet host" do
+      expect(subject.host(:intranet)).to eq '<input-your-intranet-host>'
+    end
+
+    it "should match external host" do
+      expect(subject.host(:external)).to eq '<input-your-external-host>'
+    end
+
+    it "should throw an exception when uri is invalid" do
+      expect do
+        subject.upload(apk_file)
+      end.to raise_error URI::InvalidURIError
+    end
+  end
 
 end

@@ -17,7 +17,7 @@ module QMA
     end
 
     def key
-      @data['key']
+    @data.try(:[], 'key')
     end
 
     def key=(key)
@@ -25,15 +25,15 @@ module QMA
     end
 
     def hosts
-      @data['host']
+      @data.try(:[], 'host')
     end
 
     def external_host
-      @data['host']['external']
+      @data.try(:[], 'host').try(:[], 'external')
     end
 
     def intranet_host
-      @data['host']['intranet']
+      @data.try(:[], 'host').try(:[], 'intranet')
     end
 
     def hosts=(host)
@@ -42,16 +42,17 @@ module QMA
     end
 
     def external_host=(host)
-      @data['host']['external'] = host
+      update_host('external', host)
     end
 
     def intranet_host=(host)
-      @data['host']['intranet'] = host
+      update_host('intranet', host)
     end
 
     def load(path)
       @path = path
       @data ||= YAML.load(File.open(@path))
+      load_to_env
     end
 
     def load_default_config
@@ -79,6 +80,18 @@ module QMA
         source_path = File.expand_path('../../../config', __FILE__)
         source_file = File.join(source_path, 'qma.yml')
       end
+
+      def load_to_env
+        ENV['QMA_KEY'] = key
+        ENV['QMA_EXTERNAL_HOST'] = external_host
+        ENV['QMA_INTRANET_HOST'] = intranet_host
+      end
+
+      def update_host(type, host)
+        @data['host'] = {} unless @data.has_key?('host')
+        @data['host'][type.to_s] = host
+      end
+
 
       def old_data?
         @data.has_key?('development') || @data.has_key?('production')
