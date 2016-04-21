@@ -1,7 +1,8 @@
 require 'rest-client'
 
-
 module QMA
+  ##
+  # App 上传类
   class Client
     attr_reader :config
 
@@ -13,8 +14,7 @@ module QMA
     def upload(file, host_type: :external, params: {})
       url = request_url(host_type)
       params = url_params(file, params)
-      ap url
-      ap params
+
       res = RestClient.post(url, params) do |response, request, result, &block|
         case response.code
         when 200..444
@@ -24,31 +24,47 @@ module QMA
         end
       end
 
-      case res.code
-      when 200..201
-        data = JSON.parse res
-        data['host'] = {
-          external: host(:external),
-          intranet: host(:intranet),
-        }
+      parse_response! res
+    end
 
-        {
-          code: res.code,
-          entry: data
-        }
+    def parse_response!(response)
+      case response.code
+      when 200..201
+        success_response response
       when 400..428
-        data = JSON.parse res
-        {
-          code: res.code,
-          message: data['error'],
-          entry: data['reason']
-        }
+        app_error_response response
       else
-        {
-          code: res.code,
-          entry: res
-        }
+        server_error_response response
       end
+    end
+
+    def success_response(response)
+      data = JSON.parse response
+      data['host'] = {
+        'external' => host(:external),
+        'intranet' => host(:intranet)
+      }
+
+      {
+        code: response.code,
+        entry: data
+      }
+    end
+
+    def app_error_response(response)
+      data = JSON.parse response
+      {
+        code: response.code,
+        message: data['error'],
+        entry: data['reason']
+      }
+    end
+
+    def server_error_response(response)
+      {
+        code: response.code,
+        entry: response
+      }
     end
 
     def app_url(host, slug, version = nil)
@@ -87,9 +103,8 @@ module QMA
 
     private
 
-      def load_config!(config_file)
-        QMA::Config.new(config_file)
-      end
-
-  end #/Client
-end #/QMA
+    def load_config!(config_file)
+      QMA::Config.new(config_file)
+    end
+  end # /Client
+end # /QMA

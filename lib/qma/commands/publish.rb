@@ -20,6 +20,8 @@ command :publish do |c|
 
   c.action do |args, options|
     @file = args.first || options.file
+    @config_file = options.config
+
     @name = options.name
     @user_key = options.key
     @changelog = options.changelog
@@ -29,86 +31,85 @@ command :publish do |c|
     @commit = options.commit
     @ci_url = options.ci_url
 
-    @env = options.env || ENV['QYER_ENV'] || 'development'
-    @env = @env.downcase.to_sym if @env
-
-    @config_file = options.config
-
-    determine_qyer_env!
-    determine_configuration_file!
     determine_file!
     determine_user_key!
 
-    parse!
+    parse_app!
     publish!
   end
 
   private
 
-  def publish_app(params)
-    say "组装上传数据..."
-    say "-> 应用: #{params[:name]}"
-    say "-> 标识: #{params[:identifier]}"
-    say "-> 版本: #{params[:release_version]} (#{params[:build_version]})"
-    say "-> 类型：#{params[:device_type]}"
-
-    default_params = {
-      multipart: true,
-      file: File.new(@file, 'rb'),
-      key: @user_key,
-      changelog: @changelog
-    }
-
-    params.merge!(default_params)
-    url = URI.join(AppConfig.host, 'api/app/upload').to_s
-
-    begin
-      say "上传应用中"
-      say_warning "API: #{url}" if $verbose
-      say_warning "params: #{params}" if $verbose
-
-      res = RestClient.post(url, params) do |response, request, result, &block|
-        case response.code
-        when 200..444
-          response
-        else
-          response.return!(request, result, &block)
-        end
-      end
-
-      data = JSON.parse res
-      case res.code
-      when 201
-        url = URI.join(AppConfig.host, '/apps/', data['app']['slug']).to_s
-        say "新版本上传成功"
-        say url
-      when 200
-        url = URI.join(AppConfig.host, '/apps/', "#{data['app']['slug']}/", data['version'].to_s).to_s
-        say "该版本之前已上传"
-        say url
-      when 400..428
-        say "[#{res.code}] #{data['error']}"
-        if data['reason'].count > 0
-          data['reason'].each do |key, message|
-            say " * #{key} #{message}"
-          end
-        end
-      end
-    rescue RestClient::Exception => e
-      say "[ERROR] #{e}"
-    end
-  end
-
-  def parse!
-    say "解析 #{@file_extname} 应用的内部参数..." if $verbose
-    @app = QMA::Parser.new(file)
-  end
-
   def publish!
-    publish_app(common_params.merge(default_params))
+    params = common_params.merge(default_params)
+    dump_basic_metedata!(params)
+
+    info! "上传应用中"
+    client = QMA::Client.new(@user_key, config_file: @config_file)
+    json_data = client.upload(@file, params: params)
+
+    parse_response(json_data)
+  rescue URI::InvalidURIError => e
+    say_error "[ERROR] #{e}"
   end
 
   private
+
+  def parse_response(json)
+    case json[:code]
+    when 201
+      new_upload(json)
+    when 200
+      found_exist(json)
+    when 400..428
+      fail_valid(json)
+    else
+      say_error "[ERROR] #{json[:message]}"
+    end
+  end
+
+  def new_upload(json)
+    url = app_url(json[:entry])
+    ENV['QMA_APP_URL'] = url
+
+    info! "上传成功！"
+    info! url
+  end
+
+  def found_exist(json)
+    url = app_url(json[:entry], true)
+    ENV['QMA_APP_URL'] = url
+
+    info! "该版本已经存在于服务器"
+    info! url
+  end
+
+  def fail_valid(json)
+    say_error "[ERROR] #{json[:message]}"
+    json[:entry].each_with_index do |(key, items), i|
+      say_warning "#{i + 1}. #{key}"
+      items.each do |item|
+        say_warning "- #{item}"
+      end
+    end unless json.empty?
+  end
+
+  def app_url(json, version = false)
+    host = json['host']['external']
+    slug = json['app']['slug']
+    paths = [host, 'apps', slug]
+    paths.push(json['id'].to_s) if version
+
+    paths.join('/')
+  end
+
+  def dump_basic_metedata!(params)
+    info! "组装上传数据..."
+    info! "-> 应用: #{params[:name]}"
+    info! "-> 标识: #{params[:identifier]}"
+    info! "-> 版本: #{params[:release_version]} (#{params[:build_version]})"
+    info! "-> 类型：#{params[:device_type]}"
+  end
 
   def common_params
     common_keys = %w(name device_type identifier release_version build_version)
@@ -116,8 +117,15 @@ command :publish do |c|
   end
 
   def build_params(keys)
-    keys.each_with_object([]) do |key, obj|
-      obj[key] << @app.send(key.to_sym)
+    keys.each_with_object({}) do |key, obj|
+      symbol_name =
+        if key == 'device_type'
+          :os
+        else
+          key.to_sym
+        end
+
+      obj[key.to_sym] = @app.send(symbol_name)
     end
   end
 
@@ -126,56 +134,38 @@ command :publish do |c|
       channel: @channel,
       branch: @branch,
       last_commit: @commit,
-      ci_url: @ci_url
+      ci_url: @ci_url,
+      changelog: @changelog
     }
   end
 
-  def publish_ipa!(params)
-    @name ||= app.display_name || app.name
-
-    publish_app({
-      name: @name,
-      release_type: @app.release_type,
-      identifier: @app.identifier,
-      release_version: @app.short_version,
-      build_version: @app.version,
-      profile_name: app.profile_name,
-      team_name: @app.team_name,
-      device_type: @app.os
-    }.merge(params))
-  end
-
-  def publish_apk!(params)
-    publish_app({
-      name: @name,
-      identifier: @app.manifest.package_name,
-      release_version: @app.manifest.version_name,
-      build_version: @app.manifest.version_code
-    }.merge(params))
-  end
-
-  def determine_configuration_file!
-    say_warning '检测配置文件...' if $verbose
-
-    if @config_file.to_s.empty? || ! File.exist?(@config_file)
-      say_error '配置文件不存在 (默认: ~/.qma)' && abort
-    end
+  def parse_app!
+    info! "解析 #{File.basename(@file)} 应用的内部参数..."
+    @app = QMA::App.parse(@file)
   end
 
   def determine_file!
-    say_error "请填写应用路径(仅限 ipa/apk 文件):" && abort if @file.to_s.empty?
+    white_exts = %w(ipa apk).freeze
+    file_extname = File.extname(@file).delete('.')
 
-    if File.exist?(@file)
-      @file_extname = File.extname(@file).delete('.')
-      unless @allowed_app.include?(@file_extname)
-        say_error "应用仅接受 ipa/apk 文件" && abort
-      end
-    else
-      say_error "输入的文件不存在" && abort
-    end
+    abort! '输入的文件不存在' unless File.exist?(@file)
+    abort! '应用仅接受 ipa/apk 文件' unless white_exts.include?(file_extname)
   end
 
   def determine_user_key!
-    @user_key ||= ask 'User Token:'
+    @user_key ||= ask 'User Key:'
+  end
+
+  def info!(message)
+    say message if $verbose
+  end
+
+  def warnning!(message)
+    say_warning message if $verbose
+  end
+
+  def abort!(message)
+    say_error message
+    abort
   end
 end
