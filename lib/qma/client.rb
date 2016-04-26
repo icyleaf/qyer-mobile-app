@@ -11,7 +11,7 @@ module QMA
       @config = load_config!(config_file)
     end
 
-    def upload(file, host_type: :external, params: {})
+    def upload(file, host_type: :intranet, params: {})
       url = request_url(host_type)
       params = url_params(file, params)
 
@@ -75,11 +75,11 @@ module QMA
     end
 
     def url_params(file, params)
-      params.merge!({
+      params.merge!(
         multipart: true,
         file: File.new(file, 'rb'),
         key: @key
-      })
+      )
     end
 
     def request_url(host_type)

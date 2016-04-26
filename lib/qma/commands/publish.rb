@@ -10,6 +10,7 @@ command :publish do |c|
   c.option '-k', '--key KEY', '用户唯一的标识'
   c.option '-s', '--slug qSLUG', '设置或更新应用的地址标识'
   c.option '-c', '--changelog CHANGLOG', '应用更新日志'
+  c.option '--host HOST', '上传的域名地址'
   c.option '--channel CHANNEL', '上传渠道（默认：API)'
   c.option '--branch BRANCH', 'Git 分支名'
   c.option '--commit COMMIT', 'Git 提交识别码'
@@ -21,6 +22,7 @@ command :publish do |c|
   c.action do |args, options|
     @file = args.first || options.file
     @config_file = options.config
+    @host_type = options.host_type || :intranet
 
     @name = options.name
     @user_key = options.key
@@ -44,9 +46,9 @@ command :publish do |c|
     params = common_params.merge(default_params)
     dump_basic_metedata!(params)
 
-    info! "上传应用中"
+    section! '上传应用中'
     client = QMA::Client.new(@user_key, config_file: @config_file)
-    json_data = client.upload(@file, params: params)
+    json_data = client.upload(@file, host_type: @host_type, params: params)
 
     parse_response(json_data)
   rescue URI::InvalidURIError => e
@@ -72,7 +74,7 @@ command :publish do |c|
     url = app_url(json[:entry])
     ENV['QMA_APP_URL'] = url
 
-    info! "上传成功！"
+    info! '上传成功'
     info! url
   end
 
@@ -80,7 +82,7 @@ command :publish do |c|
     url = app_url(json[:entry], true)
     ENV['QMA_APP_URL'] = url
 
-    info! "该版本已经存在于服务器"
+    info! '该版本已经存在于服务器'
     info! url
   end
 
@@ -104,11 +106,11 @@ command :publish do |c|
   end
 
   def dump_basic_metedata!(params)
-    info! "组装上传数据..."
-    info! "-> 应用: #{params[:name]}"
-    info! "-> 标识: #{params[:identifier]}"
-    info! "-> 版本: #{params[:release_version]} (#{params[:build_version]})"
-    info! "-> 类型：#{params[:device_type]}"
+    section! "解析 #{File.basename(@file)} 应用的内部参数"
+    info! "应用: #{params[:name]}"
+    info! "标识: #{params[:identifier]}"
+    info! "版本: #{params[:release_version]} (#{params[:build_version]})"
+    info! "类型：#{params[:device_type]}"
   end
 
   def common_params
@@ -140,7 +142,6 @@ command :publish do |c|
   end
 
   def parse_app!
-    info! "解析 #{File.basename(@file)} 应用的内部参数..."
     @app = QMA::App.parse(@file)
   end
 
@@ -156,16 +157,24 @@ command :publish do |c|
     @user_key ||= ask 'User Key:'
   end
 
+  def section!(message)
+    info! "--- #{message} ---"
+  end
+
   def info!(message)
-    say message if $verbose
+    say_ok "#{current_time}: #{message}" unless $slince
   end
 
   def warnning!(message)
-    say_warning message if $verbose
+    say_warning "#{current_time}: #{message}" unless $slince
   end
 
   def abort!(message)
-    say_error message
+    say_error "#{current_time}: #{message}"
     abort
+  end
+
+  def current_time
+    Time.now.strftime('[%H:%m:%S]')
   end
 end

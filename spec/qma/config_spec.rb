@@ -1,8 +1,6 @@
 describe QMA::Config do
-
   let(:key) { '1234567890' }
   let(:tmp_path) { '/tmp/qma' }
-
 
   let(:template_config_path) { File.expand_path('../../../config', __FILE__) }
   let(:template_config_name) { 'qma.yml' }
@@ -31,9 +29,9 @@ describe QMA::Config do
     FileUtils.mv backup_default_config, default_config
   end
 
-  context "#initialize" do
+  context '#initialize' do
     let(:subject) { QMA::Config.new }
-    it "should generate new one when default config file is not exist" do
+    it 'should generate new one when default config file is not exist' do
       expect(File).to exist(subject.path)
     end
 
@@ -45,8 +43,7 @@ describe QMA::Config do
     it { expect(ENV['QMA_EXTERNAL_HOST']).to eq subject.external_host }
     it { expect(ENV['QMA_INTRANET_HOST']).to eq subject.intranet_host }
 
-
-    it "should update to file when call save method" do
+    it 'should update to file when call save method' do
       external_host = 'http://stub.qyer.dev'
       subject.key = key
       subject.external_host = external_host
@@ -58,8 +55,8 @@ describe QMA::Config do
     end
   end
 
-  context "#mergation" do
-    it "should upgraded new structs when initialize" do
+  context '#mergation' do
+    it 'should upgraded new structs when initialize' do
       [fixtures_config1, fixtures_config2].each do |path|
         old_data = YAML.load(File.open(path))
         config = QMA::Config.new(path)
@@ -69,5 +66,4 @@ describe QMA::Config do
       end
     end
   end
-
 end
