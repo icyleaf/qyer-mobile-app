@@ -21,6 +21,8 @@ command :publish do |c|
 
   c.action do |args, options|
     @file = args.first || options.file
+    abort!('没有找到 app 路径') unless @file && File.exist?(@file)
+
     @config_file = options.config
     @host_type = options.host_type || :intranet
 
@@ -45,19 +47,23 @@ command :publish do |c|
   def publish!
     params = common_params.merge(default_params)
     dump_basic_metedata!(params)
+    client = QMA::Client.new(@user_key, config_file: @config_file)
 
     section! '上传应用中'
-    client = QMA::Client.new(@user_key, config_file: @config_file)
+    warnning! "External URL: #{client.config.external_host}" if $verbose
+    warnning! "Intranet URL: #{client.config.intranet_host}" if $verbose
+    warnning! "Params: #{params}" if $verbose
     json_data = client.upload(@file, host_type: @host_type, params: params)
 
     parse_response(json_data)
   rescue URI::InvalidURIError => e
-    say_error "[ERROR] #{e}"
+    abort! e.to_s
   end
 
   private
 
   def parse_response(json)
+    warnning! "Response: #{json}" if $verbose
     case json[:code]
     when 201
       new_upload(json)
@@ -158,7 +164,7 @@ command :publish do |c|
   end
 
   def section!(message)
-    info! "--- #{message} ---"
+    info! "--- #{message} ---" unless $slince
   end
 
   def info!(message)
@@ -170,7 +176,7 @@ command :publish do |c|
   end
 
   def abort!(message)
-    say_error "#{current_time}: #{message}"
+    say_error "#{current_time}: #{message}" unless $slince
     abort
   end
 
