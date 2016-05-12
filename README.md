@@ -21,6 +21,30 @@ $ gem install qyer-mobile-app
 
 ```bash
 $ qma --help
+
+qma
+
+穷游移动应用命令行工具：App 打包，上传等
+
+Commands:
+  config  配置命令需求的参数
+  help    Display global or [command] help documentation
+  info    查看 app 的数据信息
+  pac     上报本机 IP 用于自动代理使用
+  publish 发布 iOS 或 Android 应用至穷游分发内测系统 (仅限 ipa/apk 文件)
+
+Global Options:
+  --slince
+  --verbose
+  -h, --help           Display help documentation
+  -v, --version        Display version information
+  -t, --trace          Display backtrace when an error occurs
+
+Author:
+  {"icyleaf"=>"icyleaf.cn@gmail.com"}
+
+Website:
+  http://icyleaf.com
 ```
 
 配置文件
