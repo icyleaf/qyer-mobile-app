@@ -36,6 +36,8 @@ command :info do |c|
   end
 
   def dump_ipa!(table)
+    return table unless @app.mobileprovision?
+
     @app.mobileprovision.each do |key, value|
       next if key == 'DeveloperCertificates'
 
@@ -47,8 +49,6 @@ command :info do |c|
     end
 
     table
-
-    # t << ['Codesigned', codesigned.to_s.capitalize]
   end
 
   def determine_file!

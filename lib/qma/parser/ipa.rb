@@ -84,10 +84,10 @@ module QMA
       def device_type
         device_family = info.try(:[], 'UIDeviceFamily')
         if device_family.length == 1
-          case info.try(:[], 'UIDeviceFamily')
-          when 1
+          case device_family
+          when [1]
             'iphone'
-          when 2
+          when [2]
             'ipad'
           end
         elsif device_family.length == 2 && device_family == [1, 2]
@@ -139,7 +139,7 @@ module QMA
           data = `security cms -D -i "#{mobileprovision_path}"`
           @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
         rescue CFFormatError
-          @mobileprovision = nil
+          @mobileprovision = []
         end
       end
 
