@@ -49,20 +49,19 @@ module QMA
 
         @icons = []
         icons_root_path.each do |name|
-          files = info.try(:[], name)
-                      .try(:[], 'CFBundlePrimaryIcon')
-                      .try(:[], 'CFBundleIconFiles').each_with_object([]) do |items, obj|
-                        Dir.glob(File.join(app_path, "#{items}*")).find_all.each do |file|
-                          Pngdefry.defry(file, file)
-                          obj << {
-                            name: File.basename(file),
-                            file: file,
-                            dimensions: Pngdefry.dimensions(file)
-                          }
-                        end
-                      end
+          info.try(:[], name)
+              .try(:[], 'CFBundlePrimaryIcon')
+              .try(:[], 'CFBundleIconFiles').each do |items|
+                Dir.glob(File.join(app_path, "#{items}*")).find_all.each do |file|
+                  dict = {
+                    name: File.basename(file),
+                    file: file,
+                    dimensions: Pngdefry.dimensions(file)
+                  }
 
-          @icons.push files
+                  @icons.push(dict)
+                end
+              end
         end
 
         @icons
