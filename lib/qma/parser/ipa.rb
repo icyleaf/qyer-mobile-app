@@ -17,7 +17,7 @@ module QMA
       end
 
       def os
-        'ios'
+        'iOS'
       end
 
       def build_version
@@ -47,6 +47,7 @@ module QMA
       def icons
         @icons ||= info.try(:[], 'CFBundleIcons').try(:[], 'CFBundlePrimaryIcon')
                        .try(:[], 'CFBundleIconFiles').each_with_object([]) do |icons, obj|
+                         Pngdefry.defry(file, file)
                          Dir.glob(File.join(app_path, "#{icons}*")).find_all.each do |file|
                            obj << {
                              name: File.basename(file),
@@ -86,18 +87,18 @@ module QMA
         if device_family.length == 1
           case device_family
           when [1]
-            'iphone'
+            'iPhone'
           when [2]
-            'ipad'
+            'iPad'
           end
         elsif device_family.length == 2 && device_family == [1, 2]
-          'universal'
+          'Universal'
         end
       end
 
       def release_type
         if stored?
-          'store'
+          'Store'
         else
           build_type
         end
@@ -106,12 +107,12 @@ module QMA
       def build_type
         if mobileprovision?
           if devices
-            'adhoc'
+            'AdHoc'
           else
-            'inhouse'
+            'InHouse'
           end
         else
-          'debug'
+          'Debug'
         end
       end
 
@@ -139,7 +140,7 @@ module QMA
           data = `security cms -D -i "#{mobileprovision_path}"`
           @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
         rescue CFFormatError
-          @mobileprovision = []
+          @mobileprovision = nil
         end
       end
 

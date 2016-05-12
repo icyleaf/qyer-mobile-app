@@ -3,7 +3,7 @@ describe QMA::Parser::IPA do
   subject { QMA::Parser::IPA.new(file) }
 
   context 'subject' do
-    it { expect(subject.os).to eq 'ios' }
+    it { expect(subject.os).to eq 'iOS' }
     it { expect(subject.file).to eq file }
     it { expect(subject.build_version).to eq('1') }
     it { expect(subject.release_version).to eq('1.0') }
@@ -12,7 +12,7 @@ describe QMA::Parser::IPA do
     it { expect(subject.display_name).to be_nil }
     it { expect(subject.identifier).to eq('com.gmail.tkycule.AppParserTest') }
     it { expect(subject.bundle_id).to eq('com.gmail.tkycule.AppParserTest') }
-    it { expect(subject.device_type).to eq('universal') }
+    it { expect(subject.device_type).to eq('Universal') }
     it { expect(subject.devices).to be_nil }
     it { expect(subject.team_name).to be_nil }
     it { expect(subject.profile_name).to be_nil }

@@ -14,7 +14,7 @@ module QMA
       end
 
       def os
-        'android'
+        'Android'
       end
 
       def build_version

@@ -17,7 +17,7 @@ command :info do |c|
 
   def dump_data!
     table = dump_common!
-    table = dump_ipa!(table) if @app.os == 'ios'
+    table = dump_ipa!(table) if @app.os == 'iOS'
 
     say table
   end
@@ -36,7 +36,7 @@ command :info do |c|
   end
 
   def dump_ipa!(table)
-    return table unless @app.mobileprovision?
+    return table unless @app.mobileprovision? && !@app.mobileprovision.nil?
 
     @app.mobileprovision.each do |key, value|
       next if key == 'DeveloperCertificates'
