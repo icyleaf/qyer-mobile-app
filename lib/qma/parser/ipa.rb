@@ -45,17 +45,27 @@ module QMA
       end
 
       def icons
-        @icons ||= info.try(:[], 'CFBundleIcons').try(:[], 'CFBundlePrimaryIcon')
-                       .try(:[], 'CFBundleIconFiles').each_with_object([]) do |icons, obj|
-                         Pngdefry.defry(file, file)
-                         Dir.glob(File.join(app_path, "#{icons}*")).find_all.each do |file|
-                           obj << {
-                             name: File.basename(file),
-                             file: file,
-                             dimensions: Pngdefry.dimensions(file)
-                           }
-                         end
-                       end
+        return @icons if @icons
+
+        @icons = []
+        icons_root_path.each do |name|
+          files = info.try(:[], name)
+                      .try(:[], 'CFBundlePrimaryIcon')
+                      .try(:[], 'CFBundleIconFiles').each_with_object([]) do |items, obj|
+                        Dir.glob(File.join(app_path, "#{items}*")).find_all.each do |file|
+                          Pngdefry.defry(file, file)
+                          obj << {
+                            name: File.basename(file),
+                            file: file,
+                            dimensions: Pngdefry.dimensions(file)
+                          }
+                        end
+                      end
+
+          @icons.push files
+        end
+
+        @icons
       end
 
       def devices
@@ -94,6 +104,18 @@ module QMA
         elsif device_family.length == 2 && device_family == [1, 2]
           'Universal'
         end
+      end
+
+      def iphone?
+        device_type == 'iPhone'
+      end
+
+      def ipad?
+        device_type == 'iPad'
+      end
+
+      def universal?
+        device_type == 'Universal'
       end
 
       def release_type
@@ -202,6 +224,20 @@ module QMA
         end
 
         @contents
+      end
+
+      def icons_root_path
+        iphone = 'CFBundleIcons'.freeze
+        ipad = 'CFBundleIcons~ipad'.freeze
+
+        case device_type
+        when 'iPhone'
+          [iphone]
+        when 'iPad'
+          [ipad]
+        when 'Universal'
+          [iphone, ipad]
+        end
       end
     end # /IPA
   end # /Parser
