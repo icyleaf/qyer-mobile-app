@@ -1,3 +1,4 @@
+require 'os'
 require 'cfpropertylist'
 require 'pngdefry'
 require 'fileutils'
@@ -156,6 +157,8 @@ module QMA
       def mobileprovision
         return unless mobileprovision?
         return @mobileprovision if @mobileprovision
+
+        raise 'Only works in Mac OS' unless OS.mac?
 
         begin
           data = `security cms -D -i "#{mobileprovision_path}"`
