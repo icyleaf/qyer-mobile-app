@@ -14,12 +14,16 @@ describe QMA::Parser::IPA do
       it { expect(subject.identifier).to eq('com.gmail.tkycule.AppParserTest') }
       it { expect(subject.bundle_id).to eq('com.gmail.tkycule.AppParserTest') }
       it { expect(subject.device_type).to eq('Universal') }
-      it { expect(subject.devices).to be_nil }
-      it { expect(subject.team_name).to be_nil }
-      it { expect(subject.profile_name).to be_nil }
-      it { expect(subject.expired_date).to be_nil }
-      it { expect(subject.distribution_name).to be_nil }
-      it { expect(subject.mobileprovision).to be_nil }
+
+      if OS.mac?
+        it { expect(subject.devices).to be_nil }
+        it { expect(subject.team_name).to be_nil }
+        it { expect(subject.profile_name).to be_nil }
+        it { expect(subject.expired_date).to be_nil }
+        it { expect(subject.distribution_name).to be_nil }
+        it { expect(subject.mobileprovision).to be_nil }
+      end
+
       it { expect(subject.mobileprovision?).to be true }
       it { expect(subject.metadata).to be_nil }
       it { expect(subject.metadata?).to be false }
@@ -45,12 +49,16 @@ describe QMA::Parser::IPA do
       it { expect(subject.identifier).to eq('com.icyleaf.bundle') }
       it { expect(subject.bundle_id).to eq('com.icyleaf.bundle') }
       it { expect(subject.device_type).to eq('iPad') }
-      it { expect(subject.devices).to be_nil }
-      it { expect(subject.team_name).to eq('QYER Inc') }
-      it { expect(subject.profile_name).to eq('XC: *') }
-      it { expect(subject.expired_date).not_to be_nil }
-      it { expect(subject.distribution_name).to eq('XC: * - QYER Inc') }
-      it { expect(subject.mobileprovision).to be_kind_of Hash }
+
+      if OS.mac?
+        it { expect(subject.devices).to be_nil }
+        it { expect(subject.team_name).to eq('QYER Inc') }
+        it { expect(subject.profile_name).to eq('XC: *') }
+        it { expect(subject.expired_date).not_to be_nil }
+        it { expect(subject.distribution_name).to eq('XC: * - QYER Inc') }
+        it { expect(subject.mobileprovision).to be_kind_of Hash }
+      end
+
       it { expect(subject.mobileprovision?).to be true }
       it { expect(subject.metadata).to be_nil }
       it { expect(subject.metadata?).to be false }

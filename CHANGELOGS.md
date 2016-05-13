@@ -3,6 +3,7 @@
 ## v0.6.0
 
 - [FEATURE] qma publish 新增 --json-data 参数接收租装全部参数和额外更多参数
+- [BUGFIX] 处理 spec 在非 mac 环境规避相关测试用例
 
 ## v0.5.3
 
