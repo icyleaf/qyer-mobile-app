@@ -5,38 +5,50 @@ command :publish do |c|
   c.summary = '发布 iOS 或 Android 应用至穷游分发内测系统 (仅限 ipa/apk 文件)'
   c.description = '发布 iOS 或 Android 应用至穷游分发内测系统 (仅限 ipa/apk 文件)'
 
+  # 必备参数
   c.option '-f', '--file FILE', '上传的 Android 或 iPhone 应用（仅限 apk 或 ipa 文件）'
-  c.option '-n', '--name NAME', '设置应用名'
   c.option '-k', '--key KEY', '用户唯一的标识'
+  # App 属性
+  c.option '-n', '--name NAME', '设置应用名'
   c.option '-s', '--slug qSLUG', '设置或更新应用的地址标识'
   c.option '-c', '--changelog CHANGLOG', '应用更新日志'
-  c.option '--host HOST', '上传的域名地址'
-  c.option '--channel CHANNEL', '上传渠道（默认：API)'
   c.option '--branch BRANCH', 'Git 分支名'
   c.option '--commit COMMIT', 'Git 提交识别码'
+  c.option '--channel CHANNEL', '上传渠道（默认：API)'
   c.option '--ci-url CI_URL', '集成 CI 的构建地址'
 
-  c.option '--env ENV', '设置环境 (默认 development)'
+  # 高级
+  c.option '--json-data JSON_DATA', '以 json 格式租装数据，会覆盖其他同等参数'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
+  c.option '--host HOST', '上传的域名地址'
 
   c.action do |args, options|
+    options.default(
+      host: :intranet,
+      channel: 'API',
+      json_data: {}
+    )
+
     @file = args.first || options.file
     abort!('没有找到 app 路径') unless @file && File.exist?(@file)
 
     @config_file = options.config
-    @host_type = options.host_type || :intranet
+    @host_type = options.host
 
     @name = options.name
     @user_key = options.key
     @changelog = options.changelog
 
-    @channel = options.channel || 'API'
+    @channel = options.channel
     @branch = options.branch
     @commit = options.commit
     @ci_url = options.ci_url
 
+    @json_data = options.json_data
+
     determine_file!
     determine_user_key!
+    determine_json_data!
 
     parse_app!
     publish!
@@ -46,6 +58,7 @@ command :publish do |c|
 
   def publish!
     params = common_params.merge(default_params)
+    params = params.merge(@json_data) unless @json_data.empty?
     dump_basic_metedata!(params)
     client = QMA::Client.new(@user_key, config_file: @config_file)
 
@@ -53,6 +66,7 @@ command :publish do |c|
     warnning! "External URL: #{client.config.external_host}" if $verbose
     warnning! "Intranet URL: #{client.config.intranet_host}" if $verbose
     warnning! "Params: #{params}" if $verbose
+    exit
     json_data = client.upload(@file, host_type: @host_type, params: params)
 
     parse_response(json_data)
@@ -161,6 +175,12 @@ command :publish do |c|
 
   def determine_user_key!
     @user_key ||= ask 'User Key:'
+  end
+
+  def determine_json_data!
+    @json_data = JSON.parse(@json_data)
+  rescue JSON::ParserError
+    @json_data = {}
   end
 
   def section!(message)

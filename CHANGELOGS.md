@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.6.0
+
+- [FEATURE] qma publish 新增 --json-data 参数接收租装全部参数和额外更多参数
+
 ## v0.5.3
 
 - [BUGFIX] 处理在非 osx 环境下获取 ipa 的 mobileprovision 属性会报异常
