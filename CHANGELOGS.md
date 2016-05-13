@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.6.1
+
+- [BUGFIX] 降低 terminal-table 的依赖版本，已兼容 fastlane
+
 ## v0.6.0
 
 - [FEATURE] qma publish 新增 --json-data 参数接收租装全部参数和额外更多参数
