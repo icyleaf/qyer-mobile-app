@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.6.2
+
+- [FEATURE] apk 解析关联 device_type 实为调用 os 方法
+
 ## v0.6.1
 
 - [BUGFIX] 降低 terminal-table 的依赖版本，已兼容 fastlane

@@ -58,6 +58,7 @@ module QMA
       end
 
       alias identifier bundle_id
+      alias device_type os
     end # /APK
   end # /Parser
 end # /QMA
