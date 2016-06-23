@@ -9,17 +9,23 @@ command :info do |c|
     @file = args.first || options.file
     determine_file!
 
-    @app = QMA::App.parse(@file)
-    dump_data!
+    output =
+      if mobileprovision?
+        @mobileprovision = QMA::Parser::MobileProvision.new(@file)
+        dump_mobileprovision!(Terminal::Table.new, @mobileprovision)
+      else
+        @app = QMA::App.parse(@file)
+        dump_data!
+      end
+
+    say output
   end
 
   private
 
   def dump_data!
     table = dump_common!
-    table = dump_ipa!(table) if @app.os == 'iOS'
-
-    say table
+    dump_mobileprovision!(table, @app.mobileprovision) if @app.os == 'iOS' && @app.mobileprovision? && !@app.mobileprovision.nil?
   end
 
   def dump_common!
@@ -35,10 +41,8 @@ command :info do |c|
     end
   end
 
-  def dump_ipa!(table)
-    return table unless @app.mobileprovision? && !@app.mobileprovision.nil?
-
-    @app.mobileprovision.each do |key, value|
+  def dump_mobileprovision!(table, parser)
+    parser.mobileprovision.each do |key, value|
       next if key == 'DeveloperCertificates'
 
       name =
@@ -64,11 +68,18 @@ command :info do |c|
   def determine_file!
     abort! '请指定文件路径' if @file.to_s.empty?
 
-    white_exts = %w(ipa apk).freeze
+    white_exts = %w(ipa apk mobileprovision).freeze
     abort! '指定文件不存在' unless File.exist?(@file)
 
-    file_extname = File.extname(@file).delete('.')
-    abort! '应用仅接受 ipa/apk 文件' unless white_exts.include?(file_extname)
+    abort! '应用仅接受 ipa/apk/mobileprovision 文件' unless white_exts.include?(file_extname)
+  end
+
+  def mobileprovision?
+    file_extname == 'mobileprovision'
+  end
+
+  def file_extname
+    File.extname(@file).delete('.')
   end
 
   def abort!(message)
