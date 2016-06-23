@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.6.3
+
+- [FEATURE] qma info 在显示 ipa 资源的时候，如果单项包含多个条目会显示总数
+
 ## v0.6.2
 
 - [FEATURE] apk 解析关联 device_type 实为调用 os 方法
