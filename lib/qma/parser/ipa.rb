@@ -22,15 +22,15 @@ module QMA
       end
 
       def build_version
-        info.try(:[], 'CFBundleVersion')
+        info.build_version
       end
 
       def release_version
-        info.try(:[], 'CFBundleShortVersionString')
+        info.release_version
       end
 
       def identifier
-        info.try(:[], 'CFBundleIdentifier')
+        info.identifier
       end
 
       def name
@@ -38,54 +38,35 @@ module QMA
       end
 
       def display_name
-        info.try(:[], 'CFBundleDisplayName')
+        info.display_name
       end
 
       def bundle_name
-        info.try(:[], 'CFBundleName')
+        info.bundle_name
       end
 
       def icons
-        return @icons if @icons
-
-        @icons = []
-        icons_root_path.each do |name|
-          info.try(:[], name)
-              .try(:[], 'CFBundlePrimaryIcon')
-              .try(:[], 'CFBundleIconFiles').each do |items|
-                Dir.glob(File.join(app_path, "#{items}*")).find_all.each do |file|
-                  dict = {
-                    name: File.basename(file),
-                    file: file,
-                    dimensions: Pngdefry.dimensions(file)
-                  }
-
-                  @icons.push(dict)
-                end
-              end
-        end
-
-        @icons
+        info.icons
       end
 
       def devices
-        mobileprovision.try(:[], 'ProvisionedDevices')
+        mobileprovision.devices
       end
 
       def team_name
-        mobileprovision.try(:[], 'TeamName')
+        mobileprovision.team_name
       end
 
       def team_identifier
-        mobileprovision.try(:[], 'TeamIdentifier')
+        mobileprovision.team_identifier
       end
 
       def profile_name
-        mobileprovision.try(:[], 'Name')
+        mobileprovision.profile_name
       end
 
       def expired_date
-        mobileprovision.try(:[], 'ExpirationDate')
+        mobileprovision.expired_date
       end
 
       def distribution_name
@@ -93,29 +74,19 @@ module QMA
       end
 
       def device_type
-        device_family = info.try(:[], 'UIDeviceFamily')
-        if device_family.length == 1
-          case device_family
-          when [1]
-            'iPhone'
-          when [2]
-            'iPad'
-          end
-        elsif device_family.length == 2 && device_family == [1, 2]
-          'Universal'
-        end
+        info.device_type
       end
 
       def iphone?
-        device_type == 'iPhone'
+        info.iphone?
       end
 
       def ipad?
-        device_type == 'iPad'
+        info.ipad?
       end
 
       def universal?
-        device_type == 'Universal'
+        info.universal?
       end
 
       def release_type
@@ -136,6 +107,10 @@ module QMA
         else
           'Debug'
         end
+      end
+
+      def stored?
+        metadata? ? true : false
       end
 
       def hide_developer_certificates
@@ -160,12 +135,7 @@ module QMA
 
         raise 'Only works in Mac OS' unless OS.mac?
 
-        begin
-          data = `security cms -D -i "#{mobileprovision_path}"`
-          @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
-        rescue CFFormatError
-          @mobileprovision = nil
-        end
+        @mobileprovision = MobileProvision.new(mobileprovision_path)
       end
 
       def mobileprovision?
@@ -195,12 +165,8 @@ module QMA
         @metadata_path ||= File.join(@contents, 'iTunesMetadata.plist')
       end
 
-      def stored?
-        metadata? ? true : false
-      end
-
       def info
-        @info ||= CFPropertyList.native_types(CFPropertyList::List.new(file: File.join(app_path, 'Info.plist')).value)
+        @info ||= InfoPlist.new(@app_path)
       end
 
       def app_path

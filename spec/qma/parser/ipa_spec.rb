@@ -21,16 +21,14 @@ describe QMA::Parser::IPA do
         it { expect(subject.profile_name).to be_nil }
         it { expect(subject.expired_date).to be_nil }
         it { expect(subject.distribution_name).to be_nil }
-        it { expect(subject.mobileprovision).to be_nil }
+        it { expect(subject.mobileprovision).to be_kind_of QMA::Parser::MobileProvision }
       end
 
       it { expect(subject.mobileprovision?).to be true }
       it { expect(subject.metadata).to be_nil }
       it { expect(subject.metadata?).to be false }
       it { expect(subject.stored?).to be false }
-      it { expect(subject.info).to be_kind_of Hash }
-      it { expect(subject.info.length).not_to be_nil }
-      it { expect(subject.icons.length).not_to be_nil }
+      it { expect(subject.info).to be_kind_of QMA::Parser::InfoPlist }
     end
   end
 
@@ -56,7 +54,7 @@ describe QMA::Parser::IPA do
         it { expect(subject.profile_name).to eq('XC: *') }
         it { expect(subject.expired_date).not_to be_nil }
         it { expect(subject.distribution_name).to eq('XC: * - QYER Inc') }
-        it { expect(subject.mobileprovision).to be_kind_of Hash }
+        it { expect(subject.mobileprovision).to be_kind_of QMA::Parser::MobileProvision }
       end
 
       it { expect(subject.mobileprovision?).to be true }
@@ -64,9 +62,7 @@ describe QMA::Parser::IPA do
       it { expect(subject.metadata?).to be false }
       it { expect(subject.stored?).to be false }
       it { expect(subject.ipad?).to be true }
-      it { expect(subject.info).to be_kind_of Hash }
-      it { expect(subject.info.length).not_to be_nil }
-      it { expect(subject.icons.length).not_to be_nil }
+      it { expect(subject.info).to be_kind_of QMA::Parser::InfoPlist }
     end
 
     context 'subject in linux' do
@@ -97,9 +93,7 @@ describe QMA::Parser::IPA do
       it { expect(subject.metadata?).to be false }
       it { expect(subject.stored?).to be false }
       it { expect(subject.ipad?).to be true }
-      it { expect(subject.info).to be_kind_of Hash }
-      it { expect(subject.info.length).not_to be_nil }
-      it { expect(subject.icons.length).not_to be_nil }
+      it { expect(subject.info).to be_kind_of QMA::Parser::InfoPlist }
     end
   end
 end

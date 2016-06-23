@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.7.0
+
+- [FEATURE] ipa 拆分 InfoPlist 和 MobileProvision 两个类便于直接解析不同的文件
+
 ## v0.6.3
 
 - [FEATURE] qma info 在显示 ipa 资源的时候，如果单项包含多个条目会显示总数
