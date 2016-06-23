@@ -1,6 +1,6 @@
 # Changelogs
 
-## v0.7.0
+## v0.7.1
 
 - [FEATURE] ipa 拆分 InfoPlist 和 MobileProvision 两个类便于直接解析不同的文件
 - [FEATURE] qma info 支持 mobileprovision 识别和信息输出
