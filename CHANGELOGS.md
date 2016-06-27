@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.7.2
+
+- [BUGFIX] qma publish 上传时错误初始化 json_data 导致无法解析和上传
+
 ## v0.7.1
 
 - [FEATURE] ipa 拆分 InfoPlist 和 MobileProvision 两个类便于直接解析不同的文件

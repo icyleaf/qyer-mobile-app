@@ -26,7 +26,7 @@ command :publish do |c|
     options.default(
       host: :intranet,
       channel: 'API',
-      json_data: {}
+      json_data: '{}'
     )
 
     @file = args.first || options.file
@@ -66,7 +66,7 @@ command :publish do |c|
     warnning! "External URL: #{client.config.external_host}" if $verbose
     warnning! "Intranet URL: #{client.config.intranet_host}" if $verbose
     warnning! "Params: #{params}" if $verbose
-    exit
+
     json_data = client.upload(@file, host_type: @host_type, params: params)
 
     parse_response(json_data)
