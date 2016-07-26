@@ -8,6 +8,7 @@ describe QMA::Parser::MobileProvision do
     it { expect(subject.team_name).to eq('QYER Inc') }
     it { expect(subject.profile_name).to eq('XC: *') }
     it { expect(subject.expired_date).not_to be_nil }
+    it { expect(subject.empty?).to be false }
     it { expect(subject.mobileprovision).to be_kind_of Hash }
   end
 end

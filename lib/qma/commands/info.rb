@@ -25,7 +25,7 @@ command :info do |c|
 
   def dump_data!
     table = dump_common!
-    dump_mobileprovision!(table, @app.mobileprovision) if @app.os == 'iOS' && @app.mobileprovision? && !@app.mobileprovision.nil?
+    dump_mobileprovision!(table, @app.mobileprovision) if @app.os == 'iOS' && @app.mobileprovision? && !@app.mobileprovision.empty?
   end
 
   def dump_common!

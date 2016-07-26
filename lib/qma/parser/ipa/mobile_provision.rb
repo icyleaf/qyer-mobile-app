@@ -45,13 +45,15 @@ module QMA
         mobileprovision.try(:[], 'Entitlements')
       end
 
+      def empty?
+        mobileprovision.nil?
+      end
+
       def mobileprovision
         data = `security cms -D -i "#{@path}"`
-        begin
-          @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
-        rescue CFFormatError
-          @mobileprovision = nil
-        end
+        @mobileprovision = CFPropertyList.native_types(CFPropertyList::List.new(data: data).value)
+      rescue CFFormatError
+        @mobileprovision = nil
       end
     end
   end

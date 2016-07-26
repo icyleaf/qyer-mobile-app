@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.7.3
+
+- [FEATURE] MobileProvision 增加 empty? 方法来判断是否为空或解析错误
+
 ## v0.7.2
 
 - [BUGFIX] qma publish 上传时错误初始化 json_data 导致无法解析和上传
