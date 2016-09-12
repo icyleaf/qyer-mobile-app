@@ -20,11 +20,11 @@ command :publish do |c|
   # 高级
   c.option '--json-data JSON_DATA', '以 json 格式租装数据，会覆盖其他同等参数'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
-  c.option '--host HOST', '上传的域名地址'
+  c.option '--host-type HOST_TYPE', '上传地址类型 (默认: external)'
 
   c.action do |args, options|
     options.default(
-      host: :intranet,
+      host: :external,
       channel: 'API',
       json_data: '{}'
     )
@@ -33,7 +33,7 @@ command :publish do |c|
     abort!('没有找到 app 路径') unless @file && File.exist?(@file)
 
     @config_file = options.config
-    @host_type = options.host
+    @host_type = options.host_type.to_sym
 
     @name = options.name
     @user_key = options.key

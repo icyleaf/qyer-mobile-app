@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.7.4
+
+- [BUGFIX] 修复发布二进制包的时候选择 host 错误的情况并修改为 --host-type 来消除歧义
+
 ## v0.7.3
 
 - [FEATURE] MobileProvision 增加 empty? 方法来判断是否为空或解析错误
