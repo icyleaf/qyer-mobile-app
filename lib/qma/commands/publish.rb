@@ -162,7 +162,7 @@ command :publish do |c|
   end
 
   def parse_app!
-    @app = QMA::App.parse(@file)
+    @app = AppInfo.parse(@file)
   end
 
   def determine_file!

@@ -1,4 +1,5 @@
 require 'rest-client'
+require 'app-info'
 
 module QMA
   ##

@@ -1,3 +1,5 @@
+require 'app_info'
+
 command :info do |c|
   c.syntax = 'qma info [option]'
   c.summary = '查看 app 的数据信息'
@@ -11,10 +13,10 @@ command :info do |c|
 
     output =
       if mobileprovision?
-        @mobileprovision = QMA::Parser::MobileProvision.new(@file)
+        @mobileprovision = AppInfo::Parser::MobileProvision.new(@file)
         dump_mobileprovision!(Terminal::Table.new, @mobileprovision)
       else
-        @app = QMA::App.parse(@file)
+        @app = AppInfo.parse(@file)
         dump_data!
       end
 
