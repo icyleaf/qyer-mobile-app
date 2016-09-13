@@ -1,3 +1,4 @@
+require 'qma/core_ext/object/try'
 require 'yaml'
 
 module QMA
