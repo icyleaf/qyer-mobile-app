@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.8.x
+
+- [UPDATE] 更新 gems 的依赖版本
+
 ## v0.8.0
 
 - [FEATURE] 抽离解析 App 为独立 Gem app_info，并添加移动设备的支持
