@@ -1,6 +1,10 @@
 # Changelogs
 
-## v0.8.x
+## v0.8.3
+
+- [BUGFIX] 修复 qma publish 上传解析参数的异常
+
+## v0.8.2
 
 - [UPDATE] 更新 gems 的依赖版本
 

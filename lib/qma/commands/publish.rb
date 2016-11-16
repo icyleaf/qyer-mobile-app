@@ -1,3 +1,5 @@
+require 'json'
+
 command :publish do |c|
   @allowed_app = %w(ipa apk).freeze
 
@@ -24,7 +26,7 @@ command :publish do |c|
 
   c.action do |args, options|
     options.default(
-      host: :external,
+      host_type: 'external',
       channel: 'API',
       json_data: '{}'
     )
