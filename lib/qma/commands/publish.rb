@@ -61,12 +61,12 @@ command :publish do |c|
   def publish!
     params = common_params.merge(default_params)
     params = params.merge(@json_data) unless @json_data.empty?
-    dump_basic_metedata!(params)
+
     client = QMA::Client.new(@user_key, config_file: @config_file)
 
+    dump_basic_metedata!(params)
+    info! "上传：#{client.request_url(@host_type)}"
     section! '上传应用中'
-    warnning! "External URL: #{client.config.external_host}" if $verbose
-    warnning! "Intranet URL: #{client.config.intranet_host}" if $verbose
     warnning! "Params: #{params}" if $verbose
 
     json_data = client.upload(@file, host_type: @host_type, params: params)
@@ -119,7 +119,7 @@ command :publish do |c|
   end
 
   def app_url(json, version = false)
-    host = json['host']['external']
+    host = json['host'][@host_type.to_s]
     slug = json['app']['slug']
     paths = [host, 'apps', slug]
     paths.push(json['id'].to_s) if version
@@ -128,7 +128,7 @@ command :publish do |c|
   end
 
   def dump_basic_metedata!(params)
-    section! "解析 #{File.basename(@file)} 应用的内部参数"
+    section! "解析应用"
     info! "应用: #{params[:name]}"
     info! "标识: #{params[:identifier]}"
     info! "版本: #{params[:release_version]} (#{params[:build_version]})"
@@ -186,11 +186,12 @@ command :publish do |c|
   end
 
   def section!(message)
-    info! "--- #{message} ---" unless $slince
+    print "#{current_time}: " unless $slince
+    say_ok "--- #{message} ---" unless $slince
   end
 
   def info!(message)
-    say_ok "#{current_time}: #{message}" unless $slince
+    say "#{current_time}: #{message}" unless $slince
   end
 
   def warnning!(message)

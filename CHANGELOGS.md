@@ -1,5 +1,10 @@
 # Changelogs
 
+## v0.8.4
+
+- [BUGFIX] 修复 qma publish 输出地址的问题
+- [UPDATE] 优化 qma publish 输出样式
+
 ## v0.8.3
 
 - [BUGFIX] 修复 qma publish 上传解析参数的异常

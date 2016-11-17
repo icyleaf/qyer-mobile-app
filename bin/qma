@@ -15,6 +15,7 @@ program :help_formatter, :compact
 
 global_option('--slince') { $slince = true }
 global_option('--verbose') { $verbose = true }
+
 default_command :help
 
 require 'qma/commands'

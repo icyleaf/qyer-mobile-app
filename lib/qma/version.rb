@@ -1,7 +1,7 @@
 module QMA
   SUMMARY = '穷游移动应用命令行工具'.freeze
   DESCRIPTION = '穷游移动应用命令行工具：App 打包，上传等'.freeze
-  VERSION = '0.8.3'.freeze
+  VERSION = '0.8.4'.freeze
   AUTHORS = {
     'icyleaf' => 'icyleaf.cn@gmail.com'
   }.freeze
