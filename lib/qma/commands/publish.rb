@@ -122,7 +122,7 @@ command :publish do |c|
     host = json['host'][@host_type.to_s]
     slug = json['app']['slug']
     paths = [host, 'apps', slug]
-    paths.push(json['id'].to_s) if version
+    paths.push(json['version'].to_s) if version
 
     paths.join('/')
   end

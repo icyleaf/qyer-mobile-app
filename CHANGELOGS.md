@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.8.5
+
+- [BUGFIX] 修复 qma publish 输出地址参数错误
+
 ## v0.8.4
 
 - [BUGFIX] 修复 qma publish 输出地址的问题
