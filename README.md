@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/icyleaf/qyer-mobile-app.svg)](https://travis-ci.org/icyleaf/qyer-mobile-app)
 [![Circle CI](https://circleci.com/gh/icyleaf/qyer-mobile-app/tree/develop.svg?style=svg)](https://circleci.com/gh/icyleaf/qyer-mobile-app/tree/develop)
 
-穷游移动应用命令行工具
+穷游移动应用命令行工具（内部专用工具）需配合 Web 服务才能更好服用。
 
 安装
 ----

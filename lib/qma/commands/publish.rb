@@ -18,22 +18,24 @@ command :publish do |c|
   c.option '--commit COMMIT', 'Git 提交识别码'
   c.option '--channel CHANNEL', '上传渠道（默认：API)'
   c.option '--ci-url CI_URL', '集成 CI 的构建地址'
-
   # 高级
   c.option '--json-data JSON_DATA', '以 json 格式租装数据，会覆盖其他同等参数'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
   c.option '--host-type HOST_TYPE', '上传地址类型 (默认: external)'
+  c.option '--api-version API_VERSION', '上传地址接口版本号 (默认: v1)'
 
   c.action do |args, options|
     options.default(
       host_type: 'external',
       channel: 'API',
+      api_version: 'v1',
       json_data: '{}'
     )
 
     @file = args.first || options.file
     abort!('没有找到 app 路径') unless @file && File.exist?(@file)
 
+    @api_version = options.api_version
     @config_file = options.config
     @host_type = options.host_type.to_sym
 
@@ -59,14 +61,15 @@ command :publish do |c|
   private
 
   def publish!
-    params = common_params.merge(default_params)
+    params = app_parse_params.merge(default_params)
     params = params.merge(@json_data) unless @json_data.empty?
 
-    client = QMA::Client.new(@user_key, config_file: @config_file)
+    client = QMA::Client.new(@user_key, version: @api_version, config_file: @config_file)
 
     dump_basic_metedata!(params)
     info! "上传：#{client.request_url(@host_type)}"
     section! '上传应用中'
+    warnning! "File: #{@file}" if $verbose
     warnning! "Params: #{params}" if $verbose
 
     json_data = client.upload(@file, host_type: @host_type, params: params)
@@ -85,7 +88,7 @@ command :publish do |c|
       new_upload(json)
     when 200
       found_exist(json)
-    when 400..428
+    when 400..500
       fail_valid(json)
     else
       say_error "[ERROR] #{json[:message]}"
@@ -110,38 +113,55 @@ command :publish do |c|
 
   def fail_valid(json)
     say_error "[ERROR] #{json[:message]}"
+    return if json.empty?
+
     json[:entry].each_with_index do |(key, items), i|
       say_warning "#{i + 1}. #{key}"
+      next unless items.is_a?(Array)
+
       items.each do |item|
         say_warning "- #{item}"
       end
-    end unless json.empty?
+    end
   end
 
   def app_url(json, version = false)
     host = json['host'][@host_type.to_s]
-    slug = json['app']['slug']
-    paths = [host, 'apps', slug]
-    paths.push(json['version'].to_s) if version
 
+    slug = json.key?('slug') ? json['slug'] : json['app']['slug']
+    paths = [host, 'apps', slug]
+
+    paths.push(json['version'].to_s) if version
     paths.join('/')
   end
 
   def dump_basic_metedata!(params)
-    section! "解析应用"
+    section! '解析应用'
     info! "应用: #{params[:name]}"
     info! "标识: #{params[:identifier]}"
     info! "版本: #{params[:release_version]} (#{params[:build_version]})"
     info! "类型：#{params[:device_type]}"
   end
 
-  def common_params
-    common_keys = %w(name device_type identifier release_version build_version)
+  def app_parse_params
+    common_keys = %w(name device_type identifier release_version build_version icon)
+    common_keys.concat %w(devices release_type) if @app.os.casecmp('ios').zero?
+
     build_params(common_keys)
   end
 
   def build_params(keys)
     keys.each_with_object({}) do |key, obj|
+      if key == 'icon'
+        icon_file = @app.icons.try(:[], -1).try(:[], :file)
+        if !icon_file.empty? && File.exist?(icon_file)
+          Pngdefry.defry(icon_file, icon_file)
+          obj[:icon] = File.open(icon_file, 'rb')
+        end
+
+        next
+      end
+
       symbol_name =
         if key == 'device_type'
           :os

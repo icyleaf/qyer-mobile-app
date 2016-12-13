@@ -7,8 +7,9 @@ module QMA
   class Client
     attr_reader :config
 
-    def initialize(key, config_file: nil)
+    def initialize(key, version: 'v1', config_file: nil)
       @key = key
+      @version = version
       @config = load_config!(config_file)
     end
 
@@ -16,26 +17,19 @@ module QMA
       url = request_url(host_type)
       params = url_params(file, params)
 
-      res = RestClient.post(url, params) do |response, request, result, &block|
-        case response.code
-        when 200..444
-          response
-        else
-          response.return!(request, result, &block)
-        end
+      RestClient.post(url, params) do |response, _request, _result, &_block|
+        parse_response!(response)
       end
-
-      parse_response! res
     end
 
     def parse_response!(response)
       case response.code
       when 200..201
         success_response response
-      when 400..428
+      when 400..500
         app_error_response response
       else
-        server_error_response response
+        raise response
       end
     end
 
@@ -57,14 +51,15 @@ module QMA
       {
         code: response.code,
         message: data['error'],
-        entry: data['reason']
+        entry: data['entry']
       }
     end
 
     def server_error_response(response)
+      data = JSON.parse(response)
       {
         code: response.code,
-        entry: response
+        message: data['error']
       }
     end
 
@@ -99,7 +94,11 @@ module QMA
     end
 
     def upload_uri
-      'api/app/upload'
+      if @version == 'v1'
+        'api/app/upload'
+      else
+        "api/#{@version}/apps/upload"
+      end
     end
 
     private

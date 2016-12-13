@@ -1,5 +1,10 @@
 # Changelogs
 
+## v0.9.0
+
+- [FEATURE] qma publish 支持服务器端 v2 版本的接口同时兼容 v1 版本
+- [FEATURE] 优化 qma publish 上传失败后的错误输出
+
 ## v0.8.5
 
 - [BUGFIX] 修复 qma publish 输出地址参数错误

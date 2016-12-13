@@ -2,6 +2,7 @@ require 'qma/core_ext/object/try'
 require 'yaml'
 
 module QMA
+  # QMA Config
   class Config
     attr_reader :path, :data
 
@@ -100,18 +101,8 @@ module QMA
 
     def migratate_old_data
       config = Config.new(template_config_file)
-
-      if external_host = @data.try(:[], 'production').try(:[], 'host')
-        config.external_host = external_host
-      else
-        config.external_host = nil
-      end
-
-      if intranet_host = @data.try(:[], 'development').try(:[], 'host')
-        config.intranet_host = intranet_host
-      else
-        config.intranet_host = nil
-      end
+      config.external_host = @data.try(:[], 'production').try(:[], 'host') ? external_host : nil
+      config.intranet_host = @data.try(:[], 'development').try(:[], 'host') ? intranet_host : nil
 
       File.open(@path, 'w') do |f|
         f.write config.data.to_yaml

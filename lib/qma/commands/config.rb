@@ -64,9 +64,9 @@ command :config do |c|
   def clear!
     if File.exist?(@config.path)
       File.delete @config.path
-      say_ok "配置文件已清除"
+      say_ok '配置文件已清除'
     else
-      say_error "没有配置文件"
+      say_error '没有配置文件'
     end
   end
 end
