@@ -7,9 +7,10 @@ module QMA
   class Client
     attr_reader :config
 
-    def initialize(key, version: 'v1', config_file: nil)
+    def initialize(key, version: 'v2', config_file: nil, timeout: 600)
       @key = key
       @version = version
+      @timeout = timeout
       @config = load_config!(config_file)
     end
 
@@ -17,9 +18,8 @@ module QMA
       url = request_url(host_type)
       params = url_params(file, params)
 
-      RestClient.post(url, params) do |response, _request, _result, &_block|
-        parse_response!(response)
-      end
+      response = RestClient::Request.execute(method: :post, url: url, payload: params, timeout: @timeout)
+      parse_response!(response)
     end
 
     def parse_response!(response)

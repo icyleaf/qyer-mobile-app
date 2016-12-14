@@ -1,5 +1,10 @@
 # Changelogs
 
+## v0.10.0
+
+- [FEATURE] qma publish 新增上传超时时间（默认 600s）
+- [BREAK_CHANGE] qma publish 上传默认使用 v2 接口
+
 ## v0.9.0
 
 - [FEATURE] qma publish 支持服务器端 v2 版本的接口同时兼容 v1 版本

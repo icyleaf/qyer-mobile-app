@@ -22,13 +22,15 @@ command :publish do |c|
   c.option '--json-data JSON_DATA', '以 json 格式租装数据，会覆盖其他同等参数'
   c.option '--config CONFIG', '自定义配置文件 (默认: ~/.qma)'
   c.option '--host-type HOST_TYPE', '上传地址类型 (默认: external)'
+  c.option '--timeount TIMEOUT', '上传超时时间 (默认: 600)'
   c.option '--api-version API_VERSION', '上传地址接口版本号 (默认: v1)'
 
   c.action do |args, options|
     options.default(
       host_type: 'external',
       channel: 'API',
-      api_version: 'v1',
+      api_version: 'v2',
+      timeout: 600,
       json_data: '{}'
     )
 
@@ -36,6 +38,7 @@ command :publish do |c|
     abort!('没有找到 app 路径') unless @file && File.exist?(@file)
 
     @api_version = options.api_version
+    @timeout = options.timeout
     @config_file = options.config
     @host_type = options.host_type.to_sym
 
@@ -64,7 +67,7 @@ command :publish do |c|
     params = app_parse_params.merge(default_params)
     params = params.merge(@json_data) unless @json_data.empty?
 
-    client = QMA::Client.new(@user_key, version: @api_version, config_file: @config_file)
+    client = QMA::Client.new(@user_key, version: @api_version, timeout: @timeout, config_file: @config_file)
 
     dump_basic_metedata!(params)
     info! "上传：#{client.request_url(@host_type)}"
