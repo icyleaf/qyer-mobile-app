@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.11.0
+
+- [FEATURE] qma pac 上报本机 IP 和代理端口号
+
 ## v0.10.0
 
 - [FEATURE] qma publish 新增上传超时时间（默认 600s）
@@ -110,4 +114,3 @@
 ## 0.1.0
 
 - [FEATURE] 实现 qma config/publish 的核心功能
-

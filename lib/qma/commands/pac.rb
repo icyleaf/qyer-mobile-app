@@ -5,51 +5,50 @@ command :pac do |c|
   c.summary = '上报本机 IP 用于自动代理使用'
   c.description = '获取本机的 IP 信息并上传至穷游移动系统'
 
-  c.option '--report', '上传本机 IP 信息'
+  c.option '--show', '显示本机 IP 信息'
   c.option '--config CONFIG', '配置文件路径 (路径: ~/.qma)'
-  c.option '--key KEY', '自定代理 Key'
-  c.option '--port PORT', '自定代理转发端口'
+  c.option '--id ID', '自定代理 id'
+  c.option '--port PORT', '自定代理转发端口，（默认: 8080)'
 
   c.action do |_args, options|
-    @report = options.report
-    @key = options.key
-    @port = options.port
+    @show = options.show
+    @id = options.id
+    @port = options.port || 8080
 
-    if @report
+    if @show
+      show!
+    else
       @config = QMA::Config.new(options.config.to_s)
       report!
-    else
-      show!
     end
   end
 
   private
 
   def report!
-    determine_key!
-    return say_error '缺少 key' unless @key
+    determine_id!
+    return say_error '缺少 key' unless @id
 
-    section! '参数信息'
-    show!
-
-    url = "#{@config.external_host}/api/pacs/report"
+    url = "#{@config.external_host}/api/v2/pacs/update"
+    host = addrs[addrs.keys.first][:ipv4]
     params = {
-      key: @key,
+      id: @id,
+      host: host,
       port: @port,
-      hostname: hostname,
-      addrs: JSON.dump(addrs)
     }
 
-    section! '上传本地地址'
     say_warning "URL: #{url}" if $verbose
     say_warning "Params: #{params}" if $verbose
     r = RestClient.post url, params
-    json = JSON.parse(r)
-    if r.code == 201
-      say '汇报成功'
+    case r.code
+    when 202
+      say_ok "#{host}:#{@port} - 上报成功"
     else
+      json = JSON.parse(r)
       say_error "[ERROR] #{json[:error]}"
     end
+  rescue RestClient::NotModified
+    say_warning "#{host}:#{@port} - 没有变更"
   rescue RestClient::ResourceNotFound => e
     abort! "[ERROR] #{e}"
   end
@@ -74,12 +73,8 @@ command :pac do |c|
     say table
   end
 
-  def determine_key!
-    @key ||= ask 'Pac Key:'
-  end
-
-  def hostname
-    Socket.gethostname
+  def determine_id!
+    @id ||= ask 'Pac ID:'
   end
 
   def addrs

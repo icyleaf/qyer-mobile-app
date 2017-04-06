@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.icyleaf.qma.pac.agent</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/qma</string>
+		<string>pac</string>
+		<string>--id</string>
+		<string>3</string>
+	</array>
+	<key>StandardErrorPath</key>
+	<string>/var/log/qma.log</string>
+	<key>StandardOutPath</key>
+	<string>/var/log/qma.log</string>
+	<key>StartInterval</key>
+	<integer>3600</integer>
+</dict>
+</plist>
