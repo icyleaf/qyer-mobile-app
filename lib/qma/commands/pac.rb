@@ -39,17 +39,17 @@ command :pac do |c|
 
     say_warning "URL: #{url}" if $verbose
     say_warning "Params: #{params}" if $verbose
-    r = RestClient.post url, params
+    r = HTTP.post url, form: params
     case r.code
     when 202
       say_ok "#{host}:#{@port} - 上报成功"
+    when 304
+      say_warning "#{host}:#{@port} - 没有变更"
     else
-      json = JSON.parse(r)
+      json = r.parse(:json)
       say_error "[ERROR] #{json[:error]}"
     end
-  rescue RestClient::NotModified
-    say_warning "#{host}:#{@port} - 没有变更"
-  rescue RestClient::ResourceNotFound => e
+  rescue HTTP::Error => e
     abort! "[ERROR] #{e}"
   end
 

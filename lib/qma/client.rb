@@ -1,4 +1,4 @@
-require 'rest-client'
+require 'http'
 require 'app-info'
 
 module QMA
@@ -18,7 +18,9 @@ module QMA
       url = request_url(host_type)
       params = url_params(file, params)
 
-      response = RestClient::Request.execute(method: :post, url: url, payload: params, timeout: @timeout)
+      response = HTTP.timeout(connect: @timeout, read: @timeout, write: @timeout)
+                     .post(url, form: params)
+
       parse_response!(response)
     end
 
@@ -34,7 +36,7 @@ module QMA
     end
 
     def success_response(response)
-      data = JSON.parse response
+      data = response.parse(:json)
       data['host'] = {
         'external' => host(:external),
         'intranet' => host(:intranet)
@@ -47,7 +49,7 @@ module QMA
     end
 
     def app_error_response(response)
-      data = JSON.parse response
+      data = response.parse(:json)
       {
         code: response.code,
         message: data['error'],
@@ -56,7 +58,7 @@ module QMA
     end
 
     def server_error_response(response)
-      data = JSON.parse(response)
+      data = response.parse(:json)
       {
         code: response.code,
         message: data['error']
@@ -71,9 +73,10 @@ module QMA
     end
 
     def url_params(file, params)
+      params[:icon] = HTTP::FormData::File.new(params[:icon])
+
       params.merge!(
-        multipart: true,
-        file: File.new(file, 'rb'),
+        file: HTTP::FormData::File.new(file),
         key: @key
       )
     end
