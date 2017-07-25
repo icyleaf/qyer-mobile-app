@@ -58,7 +58,7 @@ describe QMA::Config do
   context '#mergation' do
     it 'should upgraded new structs when initialize' do
       [fixtures_config1, fixtures_config2].each do |path|
-        old_data = YAML.load(File.open(path))
+        old_data = YAML.load(path)
         config = QMA::Config.new(path)
 
         expect(config.intranet_host).to eq old_data.try(:[], 'development').try(:[], 'host')
