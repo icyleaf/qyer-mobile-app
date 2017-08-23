@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.12.0
+
+- [REFACTOR] 使用 http 代替 rest-client 网络请求类
+
 ## v0.11.0
 
 - [FEATURE] qma pac 上报本机 IP 和代理端口号
