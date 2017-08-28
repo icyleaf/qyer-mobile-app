@@ -44,7 +44,7 @@ command :publish do |c|
 
     @name = options.name
     @user_key = options.key
-    @changelog = options.changelog
+    @changelog = options.changelog.force_encoding('ASCII-8BIT')
 
     @channel = options.channel
     @branch = options.branch

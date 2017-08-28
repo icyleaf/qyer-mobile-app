@@ -73,9 +73,8 @@ module QMA
     end
 
     def url_params(file, params)
-      params[:icon] = HTTP::FormData::File.new(params[:icon])
-
       params.merge!(
+        icon: HTTP::FormData::File.new(params[:icon]),
         file: HTTP::FormData::File.new(file),
         key: @key
       )

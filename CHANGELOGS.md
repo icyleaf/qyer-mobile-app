@@ -1,5 +1,9 @@
 # Changelogs
 
+## v0.12.1
+
+- [BUGFIX] 配合参数上传文件是会出现字符集错误，修正为 ASCII-8BIT
+
 ## v0.12.0
 
 - [REFACTOR] 使用 http 代替 rest-client 网络请求类
