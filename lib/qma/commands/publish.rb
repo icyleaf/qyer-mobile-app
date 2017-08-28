@@ -42,16 +42,16 @@ command :publish do |c|
     @config_file = options.config
     @host_type = options.host_type.to_sym
 
-    @name = options.name
-    @user_key = options.key
+    @name = options.name.force_encoding('ASCII-8BIT')
+    @user_key = options.key.force_encoding('ASCII-8BIT')
     @changelog = options.changelog.force_encoding('ASCII-8BIT')
 
-    @channel = options.channel
-    @branch = options.branch
-    @commit = options.commit
-    @ci_url = options.ci_url
+    @channel = options.channel.force_encoding('ASCII-8BIT')
+    @branch = options.branch.force_encoding('ASCII-8BIT')
+    @commit = options.commit.force_encoding('ASCII-8BIT')
+    @ci_url = options.ci_url.force_encoding('ASCII-8BIT')
 
-    @json_data = options.json_data
+    @json_data = options.json_data.force_encoding('ASCII-8BIT')
 
     determine_file!
     determine_user_key!
