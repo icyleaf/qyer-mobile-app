@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'commander', '~> 4.4'
   spec.add_dependency 'terminal-table', '>= 1.4.5', '< 2.0.0'
   spec.add_dependency 'faraday', '~> 0.13'
+  spec.add_dependency 'faraday_middleware', '~> 0.12'
   spec.add_dependency 'app-info', '~> 1.0'
 
   spec.add_development_dependency 'bundler'
