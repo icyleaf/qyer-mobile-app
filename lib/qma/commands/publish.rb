@@ -42,16 +42,16 @@ command :publish do |c|
     @config_file = options.config
     @host_type = options.host_type.to_sym
 
-    @name = options.name.force_encoding('ASCII-8BIT')
-    @user_key = options.key.force_encoding('ASCII-8BIT')
-    @changelog = options.changelog.force_encoding('ASCII-8BIT')
+    @name = options.name#.force_encoding('ASCII-8BIT')
+    @user_key = options.key#.force_encoding('ASCII-8BIT')
+    @changelog = options.changelog#.force_encoding('ASCII-8BIT')
 
-    @channel = options.channel.force_encoding('ASCII-8BIT')
-    @branch = options.branch.force_encoding('ASCII-8BIT')
-    @commit = options.commit.force_encoding('ASCII-8BIT')
-    @ci_url = options.ci_url.force_encoding('ASCII-8BIT')
+    @channel = options.channel#.force_encoding('ASCII-8BIT')
+    @branch = options.branch#.force_encoding('ASCII-8BIT')
+    @commit = options.commit#.force_encoding('ASCII-8BIT')
+    @ci_url = options.ci_url#.force_encoding('ASCII-8BIT')
 
-    @json_data = options.json_data.force_encoding('ASCII-8BIT')
+    @json_data = options.json_data#.force_encoding('ASCII-8BIT')
 
     determine_file!
     determine_user_key!
@@ -78,8 +78,8 @@ command :publish do |c|
     json_data = client.upload(@file, host_type: @host_type, params: params)
 
     parse_response(json_data)
-  rescue URI::InvalidURIError => e
-    abort! e.to_s
+  # rescue URI::InvalidURIError => e
+  #   abort! e.to_s
   end
 
   private
@@ -148,7 +148,7 @@ command :publish do |c|
 
   def app_parse_params
     common_keys = %w(name device_type identifier release_version build_version icon)
-    common_keys.concat %w(devices release_type) if @app.os.casecmp('ios').zero?
+    # common_keys.concat %w(devices release_type) if @app.os.casecmp('ios').zero?
 
     build_params(common_keys)
   end

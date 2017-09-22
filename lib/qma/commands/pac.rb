@@ -1,4 +1,7 @@
 require 'socket'
+require 'faraday'
+require 'faraday_middleware'
+
 
 command :pac do |c|
   c.syntax = 'qma pac [option]'
@@ -39,14 +42,27 @@ command :pac do |c|
 
     say_warning "URL: #{url}" if $verbose
     say_warning "Params: #{params}" if $verbose
-    r = HTTP.post url, form: params
-    case r.code
+
+    conn = Faraday.new(url) do |builder|
+      builder.request :multipart
+      builder.request :url_encoded
+      builder.response :json, content_type: /\bjson$/
+      builder.use FaradayMiddleware::FollowRedirects
+
+      builder.adapter :net_http
+    end
+
+    response = conn.post do |req|
+      req.body = params
+    end
+
+    case response.status
     when 202
       say_ok "#{host}:#{@port} - 上报成功"
     when 304
       say_warning "#{host}:#{@port} - 没有变更"
     else
-      json = r.parse(:json)
+      json = response.body
       say_error "[ERROR] #{json[:error]}"
     end
   rescue HTTP::Error => e

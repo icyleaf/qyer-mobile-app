@@ -1,4 +1,5 @@
-require 'http'
+require 'faraday'
+require 'faraday_middleware'
 require 'app-info'
 
 module QMA
@@ -16,51 +17,68 @@ module QMA
 
     def upload(file, host_type: :intranet, params: {})
       url = request_url(host_type)
-      params = url_params(file, params)
+      params = parse_params(file, params)
 
-      response = HTTP.timeout(connect: @timeout, read: @timeout, write: @timeout)
-                     .post(url, form: params)
+      conn = Faraday.new(url) do |builder|
+        builder.request :multipart
+        builder.request :url_encoded
+        builder.response :json, content_type: /\bjson$/
+        builder.use FaradayMiddleware::FollowRedirects
+
+        builder.adapter :net_http
+      end
+
+      response = conn.post do |req|
+        req.options.timeout = @timeout
+        req.body = params
+      end
 
       parse_response!(response)
     end
 
+    def request_url(host_type)
+      File.join(host(host_type), upload_uri)
+    end
+
+    private
+
     def parse_response!(response)
-      case response.code
+      case response.status
       when 200..201
         success_response response
       when 400..500
         app_error_response response
       else
-        raise response
+        server_error_response response
       end
     end
 
     def success_response(response)
-      data = response.parse(:json)
+      data = response.body
       data['host'] = {
         'external' => host(:external),
         'intranet' => host(:intranet)
       }
 
       {
-        code: response.code,
+        code: response.status,
         entry: data
       }
     end
 
     def app_error_response(response)
-      data = response.parse(:json)
+      data = response.body
       {
-        code: response.code,
+        code: response.status,
         message: data['error'],
         entry: data['entry']
       }
     end
 
     def server_error_response(response)
-      data = response.parse(:json)
+      data = response.body
       {
-        code: response.code,
+        code: response.status,
         message: data['error']
       }
     end
@@ -72,16 +90,12 @@ module QMA
       URI.join(host, url_path.join('/')).to_s
     end
 
-    def url_params(file, params)
+    def parse_params(file, params)
       params.merge!(
-        icon: HTTP::FormData::File.new(params[:icon]),
-        file: HTTP::FormData::File.new(file),
+        icon: Faraday::UploadIO.new(params[:icon], 'image/png'),
+        file: Faraday::UploadIO.new(file, 'application/octet-stream'),
         key: @key
       )
-    end
-
-    def request_url(host_type)
-      URI.join(host(host_type), upload_uri).to_s
     end
 
     def host(host_type = :external)
@@ -96,11 +110,7 @@ module QMA
     end
 
     def upload_uri
-      if @version == 'v1'
-        'api/app/upload'
-      else
-        "api/#{@version}/apps/upload"
-      end
+      "api/#{@version}/apps/upload"
     end
 
     private
