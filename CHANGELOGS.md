@@ -1,12 +1,12 @@
 # Changelogs
 
-## v0.12.1
+## v0.12.4
 
-- [BUGFIX] 配合参数上传文件是会出现字符集错误，修正为 ASCII-8BIT
+- [BUGFIX] 修复服务器返回不为 json 的异常捕获
 
-## v0.12.0
+## v0.12.3
 
-- [REFACTOR] 使用 http 代替 rest-client 网络请求类
+- [REFACTOR] 使用 faraday 代替 rest-client 网络请求类
 
 ## v0.11.0
 
