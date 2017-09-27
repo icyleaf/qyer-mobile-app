@@ -30,7 +30,7 @@ command :publish do |c|
       host_type: 'external',
       channel: 'API',
       api_version: 'v2',
-      timeout: 600,
+      timeout: 120,
       json_data: '{}'
     )
 
@@ -91,10 +91,11 @@ command :publish do |c|
       new_upload(json)
     when 200
       found_exist(json)
-    when 400..500
+    when 400..600
       fail_valid(json)
     else
       say_error "[ERROR] #{json[:message]}"
+      say_error json[:entry]
     end
   end
 

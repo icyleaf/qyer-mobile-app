@@ -46,7 +46,7 @@ module QMA
       case response.status
       when 200..201
         success_response response
-      when 400..500
+      when 400..600
         app_error_response response
       else
         server_error_response response
@@ -73,13 +73,26 @@ module QMA
         message: data['error'],
         entry: data['entry']
       }
+    rescue
+      {
+        code: response.status,
+        message: '返回数据是无效 json 数据',
+        entry: response.body
+      }
     end
 
     def server_error_response(response)
       data = response.body
       {
         code: response.status,
-        message: data['error']
+        message: data['error'],
+        entry: data
+      }
+    rescue
+      {
+        code: response.status,
+        message: '返回数据是无效 json 数据',
+        entry: response.body
       }
     end
 

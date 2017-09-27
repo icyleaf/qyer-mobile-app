@@ -20,7 +20,7 @@ command :info do |c|
         dump_data!
       end
 
-    say output
+    puts output
   end
 
   private
